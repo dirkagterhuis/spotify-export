@@ -1,13 +1,6 @@
 # To do
 - [ ] Spotify-app
-  - [ ] Allow user to choose json or csv: get user input (json or csv) as param and pass it to spotify as request param and forward it to callback, if that's possible
-    - [ ] HIER GEBLEVEN: accept it in BE and process CSV
-      - [ ] er lijkt een soort error te zijn met de opgeslagen `spotify-playlists.json`: van 118 playlists geeft hij aan geen tracks te hebben, van 10 wel, en er zijn er 128 in totaal. Terwijl de csv conversion niks met de local playlist te maken zou meoten hebben? En er is natuurlijk die limiet van 10 opgehaalde playlists. Waar gaat dit mis?
-        - [ ] --> die playlists haal je ook niet op in dev, duh! -> check waarom csv niet gedownload wordt
-    - [ ] add tooltips explaining about the filetypes
-    - [ ] store state of fileType selection in sessionstorage or pass it back to client, now it goes back to default after redirect
-    - [ ] check csv separation character or escape ; or , in playlist/track names
-    - [ ] For playlists without items, log the playlist name but not the items in csv, with a message like 'export of playlist X did not contain items'. NB for example `37i9dQZF1EuByQ9lkv31mS` check the spotify back end if it contains something else
+  - [ ] store state of fileType selection in sessionstorage or pass it back to client, now it goes back to default after redirect
   - [ ] add track uri (retrieved from spotify api) to csv
   - [ ] Clean up the text in the .html
     - [ ] vermeld: nothing is stored, nothing is tracked
@@ -20,6 +13,10 @@
     - [ ] Use Elastic Beanstalk to host node.js server? [link](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html)
       - [ ] or [link](https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server)
   - [ ] test it with podcast playlists
+  - [ ] For playlists without items, log the playlist name but not the items in csv, with a message like 'export of playlist X did not contain items'. NB for example `37i9dQZF1EuByQ9lkv31mS` check the spotify back end if it contains something else
+  - [ ] add tooltips explaining about the filetypes
+  - [ ] fix issue on clicking the button again after retrieving playlists: you get an error.
+  - [ ] CSV's contain weird unicode like characters, e.g. `&#x2F;` instead of `/`
 - [ ] forward from static website to spotify-export.com
 - [ ] Use menu button for navigation
 - [ ] Something to track traffic
@@ -42,6 +39,8 @@
 
 # Known issues
 - Sometimes, a given track of a playlist may be `null`. No idea why, but these are skipped.
+- csv:
+  - check csv separation character or escape ; or , in playlist/track names
 
 # How to
 
@@ -60,6 +59,7 @@ localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
 - Implemented Socket.io as a framework to push statusupdates from server to client. The alternative was using Server Side Events (SSE). Although the use case is unidirectional and I'm not using binaries in the communication, SSE's have a limit to the number of open connections.
 - Allow multiple sessions/clients simultaneously 
 - Made separate repo for `spotify-export.com`
+- Support .csv file format.
 
 # Troubleshooting
 - During auth/login to spotify: redirect isn't working: Solution: add `http://localhost:8000/spotify-app` to the allowed redirect URI's on developer.spotify.com.

@@ -114,7 +114,7 @@
             const downloadAnchorNode = document.createElement('a')
             downloadAnchorNode.setAttribute('href', event.body)
             //TO DO: add date to file name
-            downloadAnchorNode.setAttribute('download', 'spotify-playlists.json')
+            downloadAnchorNode.setAttribute('download', `spotify-playlists.${event.fileType}`)
             document.body.appendChild(downloadAnchorNode) // required for firefox
             downloadAnchorNode.click()
             downloadAnchorNode.remove()

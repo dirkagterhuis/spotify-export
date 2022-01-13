@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "lib": ["ES2021.String"]
   },
   "target": "esnext",
   "module": "esnext"
