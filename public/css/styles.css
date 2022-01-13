@@ -1,0 +1,84 @@
+body {
+    color: #333333;
+    font-family: arial;
+    /* max-width: device-width; */
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex-grow: 1;
+    margin: auto;
+    padding: 0 50px;
+}
+
+footer {
+    color: #888888;
+    border-top: 1px solid #eeeeee;
+    margin-top: 16px;
+    padding: 16px 0;
+    text-align: center;
+}
+
+header {
+    margin-top: 16px;
+    margin-bottom: 48px;
+    text-align: center;
+}
+
+h1 {
+    font-size: min(10vw, 70px);
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+header a {
+    color: #888888;
+    text-decoration: none;
+    text-align: center;
+}
+
+.portrait {
+    width: 250px;
+}
+
+.centre {
+    display: flex; /* much love for flexboxes */
+    justify-content: center;
+}
+
+.empty-div {
+    height: 30px;
+}
+
+.spotify-button {
+    border-radius:50px;
+    border: 1px solid transparent;
+    padding:0 3px 0 3px;
+    display:inline-block;
+    color:#FFFFFF;
+    background:#1DB954;
+    cursor:pointer;
+    height: 35px;
+    width: 150px;
+}
+
+.loadingMessages {
+    /* padding: 10px;*/
+    margin: 0; /* Remove margins */
+    overflow: auto;
+    /* overflow-y: scroll; */
+    max-height: 200px;
+    background: #DCDCDC;
+    color: #696969;
+}
+
+.loadingMessageList {
+    list-style-type: none; /* Remove bullets */
+    padding: 10px; /* Remove padding */
+    margin: 0; /* Remove margins */
+}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="./img/weather.png" />
+        <link rel="stylesheet" href="./css/styles.css" />
+    </head>
+    <body>
+        <div w3-include-html="./views/header.html"></div>
+        <div class="main-content">
+            <p>
+                This is the landing page of the (to be built) Spotify App. Somehow, It will use the
+                Spotify API to give you all your playlists & relted information as a CSV.
+            </p>
+            <p>
+                A good use case would be to uncouple your Spotify and Facebook accounts. Currently,
+                you're forced to create a new account if you want to uncouple Spotify and Facebook,
+                if you've created your Spotify Account using Facebook, which is the same mistake I
+                made.
+            </p>
+            <p>
+                The downside if you delete your spotify account is, you'll lose all your playlists
+                and saved music. So, besides giving you a .csv file of your playlists for your
+                pleasure and convenience, this ncie little website / webapp will allow you to
+                download all your playlists and upload them to your newly created user account.
+            </p>
+
+            <div>
+                <form id="spotifyLogin" action="/login">
+                    <div>
+                        <p>
+                            Please select in which file format you would like to retrieve your
+                            playlists:
+                        </p>
+                        <div class="centre">
+                            <input type="radio" id="json" name="fileType" value="json" checked />
+                            <label for="json">json</label>
+                            <input type="radio" id="csv" name="fileType" value="csv" />
+                            <label for="csv">csv</label>
+                        </div>
+                    </div>
+                    <!-- for an empty line between, lazyness -->
+                    <div class="empty-div"></div>
+                    <div class="centre">
+                        <input type="submit" value="Get my playlists!" class="spotify-button" />
+                    </div>
+                    <!-- magic: this will be passed as query param in the url: -->
+                    <input type="hidden" name="sessionId" id="sessionId" />
+                </form>
+            </div>
+
+            <!-- for an empty line between, lazyness -->
+            <div class="empty-div"></div>
+
+            <div id="loadingMessages" class="loadingMessages" hidden>
+                <ul id="loadingMessageList" class="loadingMessageList"></ul>
+            </div>
+        </div>
+        <div w3-include-html="./views/footer.html"></div>
+    </body>
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+        src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"
+    ></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"
+    ></script>
+    <script
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"
+    ></script>
+    <script src="./js/includeHTML.js"></script>
+    <script>
+        includeHTML()
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = io()
+        let loadingMessages = document.getElementById('loadingMessages')
+        let loadingMessageList = document.getElementById('loadingMessageList')
+
+        let sessionId = sessionStorage.getItem('sessionId')
+        if (!sessionId) {
+            sessionId = (Math.random() + 1).toString(36).substring(7)
+            sessionStorage.setItem('sessionId', sessionId)
+        }
+        socket.emit('sessionId', {
+            body: sessionId,
+        })
+        document.getElementById('sessionId').value = sessionId
+
+        socket.on('loadingMessage', function (event) {
+            console.log(`MESSAGE ON CLIENT INCOMING: ${JSON.stringify(event)}`)
+            if (!loadingMessages.style.display) {
+                loadingMessages.style.display = 'block'
+            }
+
+            var item = document.createElement('li')
+            item.textContent = event.body
+            loadingMessageList.appendChild(item)
+            loadingMessages.scrollTop = loadingMessages.scrollHeight
+        })
+
+        // Sent using socket.io; no html element needed; vanilla JS without HTML element.
+        // Source: https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
+        socket.on('readyForDownload', function (event) {
+            const downloadAnchorNode = document.createElement('a')
+            downloadAnchorNode.setAttribute('href', event.body)
+            //TO DO: add date to file name
+            downloadAnchorNode.setAttribute('download', 'spotify-playlists.json')
+            document.body.appendChild(downloadAnchorNode) // required for firefox
+            downloadAnchorNode.click()
+            downloadAnchorNode.remove()
+        })
+    </script>
+</html>

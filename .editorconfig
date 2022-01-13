@@ -1,0 +1,16 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+
+[{*.json,*.prettierrc,*.yml}]
+indent_style = space
+indent_size = 2
+
+# This is required to exclude these files from .editorconfig
+[{*.resource,README.md}]
+indent_size = off
