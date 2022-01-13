@@ -4,10 +4,10 @@
   - [ ] add track uri (retrieved from spotify api) to csv
   - [ ] Clean up the text in the .html
     - [ ] vermeld: nothing is stored, nothing is tracked
+    - [ ] remove unused html stuff from old github.io site
   - [ ] Go through all comments in the code
   - [ ] Clean up and organize code properly: more modular.
     - [ ] double check: do you need to store whole socket, or just id?
-  - Decide whether to host whole site on AWS, or only spotify app.
   - Deploy to AWS. Forward from 'own' website to AWS website, preferably with own domain in the future.
     - [ ] To budget, add action to shutdown EC2 instance when budget is reached.
     - [ ] Use Elastic Beanstalk to host node.js server? [link](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html)
@@ -36,6 +36,7 @@
 - [ ] Use proper session management with e.g. Redis or node-cache to store active sessiens, get session id from server, not client. Pro: get session id in every express request, and more secure. Con: will have to use cookies?
   - [ ] https://www.section.io/engineering-education/session-management-in-nodejs-using-expressjs-and-express-session/
   - [ ] https://stackoverflow.com/questions/25532692/how-to-share-sessions-with-socket-io-1-x-and-express-4-x
+- [ ] After pressing the button, the user is always authenticated. Might not always be necessary for an active session.
 
 # Known issues
 - Sometimes, a given track of a playlist may be `null`. No idea why, but these are skipped.
