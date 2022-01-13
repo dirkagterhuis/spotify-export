@@ -1,6 +1,5 @@
 # To do
 - [ ] Spotify-app
-  - [ ] Move everything to separate spotifybackup repo
   - [ ] Allow user to choose json or csv: get user input (json or csv) as param and pass it to spotify as request param and forward it to callback, if that's possible
     - [ ] HIER GEBLEVEN: accept it in BE and process CSV
       - [ ] er lijkt een soort error te zijn met de opgeslagen `spotify-playlists.json`: van 118 playlists geeft hij aan geen tracks te hebben, van 10 wel, en er zijn er 128 in totaal. Terwijl de csv conversion niks met de local playlist te maken zou meoten hebben? En er is natuurlijk die limiet van 10 opgehaalde playlists. Waar gaat dit mis?
@@ -21,6 +20,7 @@
     - [ ] Use Elastic Beanstalk to host node.js server? [link](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html)
       - [ ] or [link](https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server)
   - [ ] test it with podcast playlists
+- [ ] forward from static website to spotify-export.com
 - [ ] Use menu button for navigation
 - [ ] Something to track traffic
 - [ ] Implement lambda's?
@@ -59,6 +59,7 @@ localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
 - Static website vs. Node.JS app: Went with Node.js: I want to learn it, and move it to TS, so just do it. It also makes this 1000 times easier and the learning more meaningfull than writing some vanilla static website that does everything itself without using NPM libraries. While at it, try out AWS or otherwise Heroku, since  you want to learn AWS anyway.
 - Implemented Socket.io as a framework to push statusupdates from server to client. The alternative was using Server Side Events (SSE). Although the use case is unidirectional and I'm not using binaries in the communication, SSE's have a limit to the number of open connections.
 - Allow multiple sessions/clients simultaneously 
+- Made separate repo for `spotify-export.com`
 
 # Troubleshooting
 - During auth/login to spotify: redirect isn't working: Solution: add `http://localhost:8000/spotify-app` to the allowed redirect URI's on developer.spotify.com.
