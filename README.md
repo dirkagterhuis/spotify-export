@@ -6,12 +6,11 @@
     - [ ] remove unused html stuff from old github.io site
   - [ ] Go through all comments in the code
   - [ ] Clean up and organize code properly: more modular.
-    - [ ] double check: do you need to store whole socket, or just id?
   - Deploy to AWS. Forward from 'own' website to AWS website, preferably with own domain in the future.
     - [ ] To budget, add action to shutdown EC2 instance when budget is reached.
     - [ ] Use Elastic Beanstalk to host node.js server? [link](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html)
       - [ ] or [link](https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server)
-  - [ ] test it with podcast playlists
+  - [ ] Test it with podcast playlists: tracks vs items.
   - [ ] For playlists without items, log the playlist name but not the items in csv, with a message like 'export of playlist X did not contain items'. NB for example `37i9dQZF1EuByQ9lkv31mS` check the spotify back end if it contains something else
   - [ ] add tooltips explaining about the filetypes
   - [ ] fix issue on clicking the button again after retrieving playlists: you get an error.
