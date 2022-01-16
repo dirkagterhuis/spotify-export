@@ -35,9 +35,22 @@
                             playlists:
                         </p>
                         <div class="centre">
-                            <input type="radio" id="json" name="fileType" value="json" checked />
+                            <input
+                                type="radio"
+                                id="json"
+                                name="fileType"
+                                value="json"
+                                onclick="handleFileTypeSelection()"
+                                checked
+                            />
                             <label for="json">json</label>
-                            <input type="radio" id="csv" name="fileType" value="csv" />
+                            <input
+                                type="radio"
+                                id="csv"
+                                name="fileType"
+                                value="csv"
+                                onclick="handleFileTypeSelection()"
+                            />
                             <label for="csv">csv</label>
                         </div>
                     </div>
@@ -119,5 +132,19 @@
             downloadAnchorNode.click()
             downloadAnchorNode.remove()
         })
+    </script>
+    <script>
+        // Remember fileType selection
+        const selectedFileTypeFromStorage = sessionStorage.getItem('selectedFileType')
+        if (selectedFileTypeFromStorage) {
+            document.querySelector(
+                `input[name="fileType"][value="${selectedFileTypeFromStorage}"]`
+            ).checked = true
+        }
+
+        function handleFileTypeSelection() {
+            const selectedFileType = document.querySelector('input[name="fileType"]:checked').value
+            sessionStorage.setItem('selectedFileType', selectedFileType)
+        }
     </script>
 </html>
