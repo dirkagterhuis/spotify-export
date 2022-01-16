@@ -1,7 +1,6 @@
 # To do
 - [ ] Spotify-app
-  - [ ] store state of fileType selection in sessionstorage or pass it back to client, now it goes back to default after redirect
-  - [ ] add track uri (retrieved from spotify api) to csv
+  - [ ] store state of fileType selection in sessionstorage or pass it back to client, now it goes back to default after redirect: set it upon submit, upon load check if it's in session storage and set it if it is
   - [ ] Clean up the text in the .html
     - [ ] vermeld: nothing is stored, nothing is tracked
     - [ ] remove unused html stuff from old github.io site
@@ -24,6 +23,7 @@
 - [ ] Make something to turn .md blogs into content
 - [ ] Convert to ts. Add types.
 - [ ] Add tests
+- [ ] Add adsense? 2-3 cents per visit? example: ishetalvrijdag.nl
 - [ ] cookie notification? Only needed if you track users. Using a session id in sessionStorage though, but it's not used for tracking and not traceable to the user. No user id's or data is stored anywhere.
 - [ ] Make site available as both static (github pages) as Node.js app using Express. Something with the index.html embedding the /public/views/index.html, but then with all refs working. Try and determine whether it's static or not, and then serve the correct content accordingly, with the right references. Or: use a view engine and move views to root dir, and update refs. Ideally end op with only 1 views dir and 1 static index.html, referencing the views.
   - Converted website to work both as a static website, and as a Node.JS Express app, such that the website works from Github Pages until it's pushed to AWS. Had some issues with hosting locally using `ws` vs. `nodemon`, but Nodemon definitely had a preference in ease of development as you don't have to restart the server on every change. It did however require the whole app to work as a Node.JS Express app, since you run `nodemon index.ts` and got served by the app, while `ws` just rendered the `index.html` in root.-> Didn't work yet.

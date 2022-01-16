@@ -71,7 +71,7 @@ async function getItemsByPlaylist(token: string, url: string, playlistItems) {
                 limit: 50,
                 // see https://developer.spotify.com/documentation/web-api/reference/#/operations/get-track for all fields
                 // test fields here with token: https://developer.spotify.com/console/get-playlist-tracks/
-                fields: 'total,next,items(track(id,name,album.name,artists(name)))',
+                fields: 'total,next,items(track(id,name,album.name,artists(name),href))',
             },
         })
         if (getPlaylistItemResponse.status === 200) {

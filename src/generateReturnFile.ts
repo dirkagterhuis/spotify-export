@@ -20,10 +20,12 @@ function csvFromJSON(playlists): string {
         'playlist owner name',
         'playlist owner type',
         'playlist is collaborative',
+        'playlist href',
         'playlist description',
         'track id,track name',
         'track artist name(s)',
         'track album name',
+        'track href',
     ]
     let ret: string = headers.join(',')
 
@@ -51,11 +53,13 @@ function csvFromJSON(playlists): string {
                 playlist.owner.display_name,
                 playlist.owner.type,
                 String(playlist.collaborative),
+                playlist.href,
                 playlist.description,
                 track.id,
                 track.name,
                 artistNames,
                 track.album.name,
+                track.href,
             ]
 
             // Escape comma's in .csv
