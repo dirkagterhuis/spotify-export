@@ -1,15 +1,12 @@
 # To do
 - [ ] Clean up this to-do and make it available for the general public
 - [ ] Spotify-app
-  - [ ] Clean up the text in the .html
-    - [ ] vermeld: nothing is stored, nothing is tracked
-    - [ ] remove unused html stuff from old github.io site
-  - [ ] Go through all comments in the code
-  - [ ] Clean up and organize code properly: more modular.
   - Deploy to AWS. Forward from 'own' website to AWS website, preferably with own domain in the future.
     - [ ] To budget, add action to shutdown EC2 instance when budget is reached.
     - [ ] Use Elastic Beanstalk to host node.js server? [link](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html)
       - [ ] or [link](https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server)
+  - [ ] Go through all comments in the code
+  - [ ] Clean up and organize code properly: more modular.
   - [ ] Test it with podcast playlists: tracks vs items.
   - [ ] add tooltips explaining about the filetypes
   - [ ] fix issue on clicking the button again after retrieving playlists: you get an error.

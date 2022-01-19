@@ -25,6 +25,10 @@
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/node": "^16.11.19",
-    "local-web-server": "^5.1.1"
+    "local-web-server": "^5.1.1",
+    "aws-sdk": "^2.1060.0"
+  },
+  "engines": {
+    "node": "12.18.0"
   }
 }
