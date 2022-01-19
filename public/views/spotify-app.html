@@ -10,24 +10,39 @@
     <body>
         <div w3-include-html="./views/header.html"></div>
         <div class="main-content">
-            <p>
-                This is the landing page of the (to be built) Spotify App. Somehow, It will use the
-                Spotify API to give you all your playlists & relted information as a CSV.
+            <p class="centre">
+                Welcome to spotify-export.com. Here you can export your Spotify playlists from
+                Spotify.
             </p>
+            <h2 class="centre">Nice. Why?</h2>
             <p>
-                A good use case would be to uncouple your Spotify and Facebook accounts. Currently,
-                you're forced to create a new account if you want to uncouple Spotify and Facebook,
-                if you've created your Spotify Account using Facebook, which is the same mistake I
-                made.
+                Maybe (like me) you're a data hoarder and want someplace to save the music you're
+                enjoying today. Or maybe, like me, you've created your Spotify account using your
+                Facebook account and you want to move all your playlists to a new, Facebook-free
+                Spotify account. In the future, you'll also be able to import/upload the exported
+                playlists from another account, into another Spotify account of your choosing.
             </p>
+            <h2 class="centre">Nice. How?</h2>
             <p>
-                The downside if you delete your spotify account is, you'll lose all your playlists
-                and saved music. So, besides giving you a .csv file of your playlists for your
-                pleasure and convenience, this ncie little website / webapp will allow you to
-                download all your playlists and upload them to your newly created user account.
+                Just click the big green button below. You can then login to your Spotify account
+                and give this app the permissions to read your playlists. Then, all your playlists
+                will be retrieved.
             </p>
-
+            <h2 class="centre">Nice. File type?</h2>
+            <p>
+                You can choose to export as <a href="https://en.wikipedia.org/wiki/JSON">json</a> or
+                <a href="https://en.wikipedia.org/wiki/Comma-separated_values">csv</a>. If you don't
+                know what json is, choose csv. If you don't know what csv is: you can easily turn
+                this into an excel file.
+            </p>
+            <h2 class="centre">Nice. Disclaimer?</h2>
+            <p>
+                No data is stored anywhere but on your browser, and this isn't being tracked.
+                Although data is currently only retrieved from your Spotify account, use this at
+                your own risk.
+            </p>
             <div>
+                <h2 class="centre">Nice. Let's get started!</h2>
                 <form id="spotifyLogin" action="/login">
                     <div>
                         <p>

@@ -42,7 +42,7 @@ app.engine('html', ejs.renderFile)
 
 // remember: static website uses ~/index.html; dynamic website uses ~/public/views/index.html
 app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname + '/public/views/index.html'))
+    res.sendFile(path.join(__dirname + '/public/views/spotify-app.html'))
 })
 
 app.get('/spotify-app', function (req, res) {

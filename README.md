@@ -1,6 +1,6 @@
 # To do
+- [ ] Clean up this to-do and make it available for the general public
 - [ ] Spotify-app
-  - [ ] store state of fileType selection in sessionstorage or pass it back to client, now it goes back to default after redirect: set it upon submit, upon load check if it's in session storage and set it if it is
   - [ ] Clean up the text in the .html
     - [ ] vermeld: nothing is stored, nothing is tracked
     - [ ] remove unused html stuff from old github.io site
@@ -11,11 +11,11 @@
     - [ ] Use Elastic Beanstalk to host node.js server? [link](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html)
       - [ ] or [link](https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server)
   - [ ] Test it with podcast playlists: tracks vs items.
-  - [ ] For playlists without items, log the playlist name but not the items in csv, with a message like 'export of playlist X did not contain items'. NB for example `37i9dQZF1EuByQ9lkv31mS` check the spotify back end if it contains something else
   - [ ] add tooltips explaining about the filetypes
   - [ ] fix issue on clicking the button again after retrieving playlists: you get an error.
   - [ ] CSV's contain weird unicode like characters, e.g. `&#x2F;` instead of `/`
-- [ ] forward from static website to spotify-export.com
+- [ ] forward from own website to spotify-export.com
+- [ ] forward from static website to spotify-export.com, remove everything from github.io website
 - [ ] Use menu button for navigation
 - [ ] Something to track traffic
 - [ ] Implement lambda's?
@@ -24,6 +24,7 @@
 - [ ] Add tests
 - [ ] Add adsense? 2-3 cents per visit? example: ishetalvrijdag.nl
 - [ ] cookie notification? Only needed if you track users. Using a session id in sessionStorage though, but it's not used for tracking and not traceable to the user. No user id's or data is stored anywhere.
+- [ ] Add contact form, send email to me or dedicated gmail address without exposing it
 - [ ] Make site available as both static (github pages) as Node.js app using Express. Something with the index.html embedding the /public/views/index.html, but then with all refs working. Try and determine whether it's static or not, and then serve the correct content accordingly, with the right references. Or: use a view engine and move views to root dir, and update refs. Ideally end op with only 1 views dir and 1 static index.html, referencing the views.
   - Converted website to work both as a static website, and as a Node.JS Express app, such that the website works from Github Pages until it's pushed to AWS. Had some issues with hosting locally using `ws` vs. `nodemon`, but Nodemon definitely had a preference in ease of development as you don't have to restart the server on every change. It did however require the whole app to work as a Node.JS Express app, since you run `nodemon index.ts` and got served by the app, while `ws` just rendered the `index.html` in root.-> Didn't work yet.
 
@@ -45,6 +46,8 @@
 # How to
 
 ## Setup development environment
+NB you'll need a spotify app which you can create on [https://developer.spotify.com/dashboard/login](https://developer.spotify.com/dashboard/login).
+
 - `npm install`
 - Save your Spotify App `Client Id` and `Client Secret` in `local.yml`. Don't worry: this file is in `.gitignore`:
 ```yml
