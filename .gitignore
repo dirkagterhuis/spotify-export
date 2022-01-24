@@ -1,3 +1,4 @@
 node_modules
+.elasticbeanstalk/
 local.yml
 playlists.json
