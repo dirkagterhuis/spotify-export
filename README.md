@@ -2,8 +2,8 @@
 - [ ] Clean up this to-do and make it available for the general public
 - [ ] Spotify-app
   - Deploy to AWS. Forward from 'own' website to AWS website, preferably with own domain in the future.
-    - [ ] check if aws account is still free tier. Wrs al verlopen: aug 2019...: https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/tracking-free-tier-usage.html
     - [ ] To budget, add action to shutdown EC2 instance when budget is reached.
+    - [ ] AWS: setup mfa for account
     - [ ] Use Elastic Beanstalk to host node.js server? [link](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html)
       - [ ] or [link](https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server)
       - [ ] **Got stuck on installing EB CLI: **
@@ -55,7 +55,7 @@ NB you'll need a spotify app which you can create on [https://developer.spotify.
 localSpotifyAppClientId: "INSERT_CLIENT_ID"
 localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
 ```
-- `npm run dev` to start up local server on localhost:8000
+- `npm run dev` to start up local server on [localhost:8000](localhost:8000)
 
 ## Set up AWS stuff
 - Install the Elastic Beanstalk (EB) CLI. See: https://github.com/aws/aws-elastic-beanstalk-cli-setup
