@@ -1,8 +1,8 @@
 # To do
 - [ ] Clean up this to-do and make it available for the general public
 - [ ] Spotify-app
-  - Deploy to AWS. Forward from 'own' website to AWS website, preferably with own domain in the future.
-    - [ ] set node.js 14 for app and npm install with it, and check if it works (14 because AWS only supports 14)
+  - Deploy to AWS.
+    - [ ] check verschil Elastic Beanstalk and EC2, zoals https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server
     - [ ] GEBLEVEN BIJ: `eb create`; instructie onderin aanvullen. https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html
     - [ ] To budget, add action to shutdown EC2 instance when budget is reached.
   - [ ] Go through all comments in the code
