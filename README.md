@@ -1,5 +1,5 @@
 # To do
-- [ ] Clean up this to-do and make it available for the general public
+- [ ] Clean up this to-do and make it available for the general public -> move to do to private notes. 
 - [ ] Spotify-app
   - Deploy to AWS.
     - [ ] check verschil Elastic Beanstalk and EC2, zoals https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server
@@ -11,6 +11,7 @@
   - [ ] add tooltips explaining about the filetypes
   - [ ] fix issue on clicking the button again after retrieving playlists: you get an error.
   - [ ] CSV's contain weird unicode like characters, e.g. `&#x2F;` instead of `/`
+  - [ ] Share repo with: s'up bitches, R.Hanna
 - [ ] forward from own website to spotify-export.com
 - [ ] forward from static website to spotify-export.com, remove everything from github.io website
 - [ ] Use menu button for navigation
