@@ -2,13 +2,9 @@
 - [ ] Clean up this to-do and make it available for the general public
 - [ ] Spotify-app
   - Deploy to AWS. Forward from 'own' website to AWS website, preferably with own domain in the future.
+    - [ ] set node.js 14 for app and npm install with it, and check if it works (14 because AWS only supports 14)
+    - [ ] GEBLEVEN BIJ: `eb create`; instructie onderin aanvullen. https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html
     - [ ] To budget, add action to shutdown EC2 instance when budget is reached.
-    - [ ] AWS: setup mfa for account
-    - [ ] Use Elastic Beanstalk to host node.js server? [link](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html)
-      - [ ] or [link](https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server)
-      - [ ] **Got stuck on installing EB CLI: **
-        - [ ] https://www.google.com/search?q=mac+install+python+implicit+declaration+of+function+%27sendfile%27+is+invalid+in+C99&rlz=1C5GCEM_enNL966NL966&oq=mac+install+python+implicit+declaration+of+function+%27sendfile%27+is+invalid+in+C99&aqs=chrome..69i57.12489j0j1&sourceid=chrome&ie=UTF-8
-        - [ ] ...free tier has ran out. Consider using heroku for free, is it possible with own domain? But now for commercial purposes, then it's €25/month. AWS will be min €19/month. -> make new gmail for this app and use free tier.
   - [ ] Go through all comments in the code
   - [ ] Clean up and organize code properly: more modular.
   - [ ] Test it with podcast playlists: tracks vs items.
@@ -57,16 +53,16 @@ localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
 ```
 - `npm run dev` to start up local server on [localhost:8000](localhost:8000)
 
-## Set up AWS stuff
-- Install the Elastic Beanstalk (EB) CLI. See: https://github.com/aws/aws-elastic-beanstalk-cli-setup
-  - https://stackoverflow.com/questions/63336624/xcode-command-not-found:
-```
-brew install openssl
-brew install zlib
-brew install readline
-```
-  - `git clone https://github.com/aws/aws-elastic-beanstalk-cli-setup.git`
-  - Mac: `./aws-elastic-beanstalk-cli-setup/scripts/bundled_installer`
+## Set up AWS Elastic Beanstalk
+- [ ] When AWS free tier has ran out, Consider using heroku for free (only for non-commercial use) or €25/month. AWS will be min €19/month.
+- [Deploying an Express application to Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html)
+  - Install the Elastic Beanstalk (EB) CLI. As an easier alternative to https://github.com/aws/aws-elastic-beanstalk-cli-setup, use `brew install awsebcli`
+  - AWS supports Node.js 14 as highest version
+  - `eb init`
+    - Region: eu-west-1 (Ireland)
+    - CodeCommit: origin/master
+    - This will create `.elasticbeanstalk/`
+  - `eb create`
 
 # Changelog
 - Converted to TS due to annoying Node/JS issues in node versions.
