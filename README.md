@@ -63,7 +63,12 @@ localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
     - Region: eu-west-1 (Ireland)
     - CodeCommit: origin/master
     - This will create `.elasticbeanstalk/`
-  - `eb create`
+  - `eb create`: creates an environment in AWS
+    - Environment name
+    - DNS CNAME prefix
+    - Load balancer type -> application
+    - Spot Flee -> N
+    - 
 
 # Changelog
 - Converted to TS due to annoying Node/JS issues in node versions.
