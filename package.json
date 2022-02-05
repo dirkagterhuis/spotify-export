@@ -1,6 +1,7 @@
 {
-  "main": "index.ts",
+  "main": "dist/index.js",
   "scripts": {
+    "start": "tsc && node dist/index.js",
     "dev": "nodemon index.ts --ext .js,.ts,.html,.json"
   },
   "dependencies": {

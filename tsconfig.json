@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "lib": ["ES2021.String"]
+    "lib": ["ES2021.String"],
+    "outDir": "dist"
   },
   "target": "esnext",
   "module": "esnext"
