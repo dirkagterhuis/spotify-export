@@ -1,6 +1,7 @@
 import fs from 'fs'
 import yaml from 'js-yaml'
 
+//TODO only do this when localy.yml is there
 let localConfig
 try {
     localConfig = yaml.load(fs.readFileSync('./local.yml', 'utf8'))
