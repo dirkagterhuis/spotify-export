@@ -6,6 +6,7 @@ exports.__esModule = true;
 exports.config = void 0;
 var fs_1 = __importDefault(require("fs"));
 var js_yaml_1 = __importDefault(require("js-yaml"));
+//TODO only do this when localy.yml is there
 var localConfig;
 try {
     localConfig = js_yaml_1["default"].load(fs_1["default"].readFileSync('./local.yml', 'utf8'));

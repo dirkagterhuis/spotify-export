@@ -49,8 +49,8 @@ localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
     - Spot Flee -> N
 
 ## Build
-- `npm run build`
-- Manually copy over all files in `./public` to `./dist/public`. I tried webpack, but had issues.
+- `npm run build`. It sucks, but this could give `Missing script: "build"`. In that case, copy-pasta the script.
+  - To do: configure webpack to include the html files in `./dist` instead of copying them over.
 
 # Changelog
 - Converted to TS due to annoying Node/JS issues in node versions.
