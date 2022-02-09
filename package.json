@@ -19,10 +19,7 @@
   "devDependencies": {
     "aws-sdk": "^2.1060.0",
     "nodemon": "^2.0.15",
-    "ts-loader": "^9.2.6",
-    "ts-node": "^10.4.0",
-    "webpack": "^5.68.0",
-    "webpack-cli": "^4.9.2"
+    "ts-node": "^10.4.0"
   },
   "engines": {
     "node": "14.18.3"
