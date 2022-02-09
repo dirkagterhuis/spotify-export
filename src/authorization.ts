@@ -3,7 +3,7 @@ import { config } from '../config'
 import axios from 'axios'
 import { URLSearchParams } from 'url'
 
-const redirect_uri = 'http://localhost:8000/spotify-app-callback' //TODO: make this dependent on environment // the redirect uri should be added to the allowed redirect URI's on https://developer.spotify.com/
+const redirect_uri = `${config.baseUrl}/spotify-app-callback`
 
 export function generateState(): string {
     return (Math.random() + 1).toString(36).substring(7)
