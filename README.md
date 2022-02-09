@@ -47,7 +47,10 @@ localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
     - DNS CNAME prefix
     - Load balancer type -> application
     - Spot Flee -> N
-    - 
+
+## Build
+- `npm run build`
+- Manually copy over all files in `./public` to `./dist/public`. I tried webpack, but had issues.
 
 # Changelog
 - Converted to TS due to annoying Node/JS issues in node versions.
