@@ -91,10 +91,7 @@ async function getItemsByPlaylist(token: string, url: string, playlistItems) {
         await getItemsByPlaylist(token, next, playlistItems)
     } catch (error) {
         console.log(`Error: ${JSON.stringify(error.message)}`)
-        const retryAfter = error.headers['retry-after']
-        if (retryAfter !== undefined) {
-            console.log(`Retry-After is provided as ${retryAfter}`)
-        }
+        console.log(`Error header: ${JSON.stringify(error.headers)}`)
         throw new Error(error)
     }
     return playlistItems
