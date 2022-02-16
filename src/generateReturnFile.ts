@@ -46,6 +46,9 @@ function csvFromJSON(playlists): string {
             let artistNames: string = ''
             for (let k = 0; k < artists.length; k++) {
                 artistNames += artists[k].name as string
+                if (k !== artists.length - 1) {
+                    artistNames += ', '
+                }
             }
             const retNewLine: string[] = [
                 playlist.id,
