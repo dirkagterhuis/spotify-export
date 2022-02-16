@@ -78,6 +78,12 @@ async function getItemsByPlaylist(token: string, url: string, playlistItems) {
             playlistItems.push(...getPlaylistItemResponse.data.items)
             totalToGet = getPlaylistItemResponse.data.total
         }
+
+        const retryAfter = getPlaylistItemResponse.headers['retry-after']
+        if (retryAfter !== undefined) {
+            console.log(`Retry-After is provided as ${retryAfter}`)
+        }
+
         const next: string = getPlaylistItemResponse.data.next
         if (next === null) {
             if (totalToGet !== playlistItems.length) {
