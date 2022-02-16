@@ -1,4 +1,5 @@
 import axios from 'axios'
+const rateLimitingTimeout:number = 100
 
 export async function getPlaylists(token: string, url: string, playlists) {
     let totalToGet: number
@@ -40,7 +41,7 @@ export async function getItemsByPlaylists(
     console.log(`Getting all tracks for ${playlists.length} playlists.`)
 
     // Get all playlists for production but 10 for dev
-    const numberOfPlaylistsToGet: number = process.env.PORT ? playlists.length : 100
+    const numberOfPlaylistsToGet: number = process.env.PORT ? playlists.length : 10
     for (let i = 0; i < numberOfPlaylistsToGet; i++) {
         console.log(
             `Getting tracks for playlist #${(i + 1).toString().padStart(3, '0')} out of ${
@@ -88,7 +89,7 @@ async function getItemsByPlaylist(token: string, url: string, playlistItems) {
             }
             return playlistItems
         }
-        await new Promise(resolve => setTimeout(resolve, 10)) //timeout needed to prevent rate limiting issues enforced by Spotify.
+        await new Promise(resolve => setTimeout(resolve, rateLimitingTimeout)) //timeout needed to prevent rate limiting issues enforced by Spotify.
         await getItemsByPlaylist(token, next, playlistItems)
 
     } catch (error) {
