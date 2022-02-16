@@ -91,7 +91,7 @@ async function getItemsByPlaylist(token: string, url: string, playlistItems) {
         await getItemsByPlaylist(token, next, playlistItems)
     } catch (error) {
         console.log(`Error: ${JSON.stringify(error.message)}`)
-        console.log(`Error header: ${JSON.stringify(error.headers)}`)
+        console.log(`Error response headers: ${JSON.stringify(error.response.headers)}`)
         throw new Error(error)
     }
     return playlistItems
