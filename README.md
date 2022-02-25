@@ -6,12 +6,12 @@ This application allows users to export playlists from their Spotify account. Pu
 
 The application is built in Typescript and is currently hosted on AWS. 
 
-# Future features
+# Roadmap
 - [ ] Allow selection of 'own playlists only' vs. 'subscribed playlists too'. 
 - [ ] Allow selection of which fields to be retrieved.
 - [ ] Allow uploading of playlists to a Spotify account. 
 - [ ] Possibly show the server .json or .csv as a textbox, not as a file to download.
-- [ ] Use proper session management with e.g. Redis or node-cache to store active sessiens, get session id from server, not client. Pro: get session id in every express request, and more secure. Con: will have to use cookies?
+- [ ] Use proper session management with e.g. Redis or node-cache to store active sessions.Pro: get session id in every express request, and more secure. Con: will have to use cookies?
   - [ ] https://www.section.io/engineering-education/session-management-in-nodejs-using-expressjs-and-express-session/
   - [ ] https://stackoverflow.com/questions/25532692/how-to-share-sessions-with-socket-io-1-x-and-express-4-x
 - [ ] After pressing the button, the user is always authenticated. Might not always be necessary for an active session.
