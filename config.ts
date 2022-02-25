@@ -1,12 +1,14 @@
 import fs from 'fs'
 import yaml from 'js-yaml'
 
-//TODO only do this when localy.yml is there
+// Only set localConfig in dev
 let localConfig
-try {
-    localConfig = yaml.load(fs.readFileSync('./local.yml', 'utf8'))
-} catch (e) {
-    console.log(e)
+if (process.env.NODE_ENV === undefined || process.env.NODE_ENV === 'dev') {
+    try {
+        localConfig = yaml.load(fs.readFileSync('./local.yml', 'utf8'))
+    } catch (e) {
+        throw new Error(`In dev environment, localConfig isn't configured correctly: ${e.message}`)
+    }
 }
 
 export const config = {
