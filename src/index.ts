@@ -1,6 +1,6 @@
 import type { Client, FileType} from './types'
 import { config } from '../config'
-import { generateState, getSpotifyLoginUrl, getAuthToken } from './functions/authorization'
+import { login, getAuthToken } from './functions/authorization'
 import { getPlaylists, getItemsByPlaylists } from './functions/spotifyApiUtils'
 import { generateReturnFile } from './functions/generateReturnFile'
 
@@ -39,25 +39,19 @@ app.get('/', function (req, res) {
 })
 
 app.get('/login', function (req, res) {
-    const state = generateState()
-    const client = clients.find((obj) => {
-        return obj.sessionId === req.query.sessionId as string
+    const client = clients.find((client) => {
+        return client.sessionId === req.query.sessionId as string
     })
     if (!client) {
         throw new Error(`Request not coming from an active session.`)
     }
-    client.state = state
     client.fileType = req.query.fileType as FileType
-    res.redirect(getSpotifyLoginUrl(state))
+    res.redirect(login(client))
 })
 
 app.get('/spotify-app-callback', async function (req, res) {
-    // use 'redirect', not 'render', as to remove the code from the url
+    // In order to remove the code from the url
     res.redirect('../')
-
-    console.log('code', req.query.code)
-    console.log('state', req.query.state)
-    console.log('error', req.query.error)
 
     const code: string = (req.query.code as string) || null
     const state = req.query.state || null

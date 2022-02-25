@@ -1,4 +1,5 @@
 // Uses Spotify OAuth flow for web apps: https://developer.spotify.com/documentation/general/guides/authorization/code-flow/
+import type { Client } from '../types'
 import { config } from '../../config'
 
 import axios from 'axios'
@@ -6,11 +7,12 @@ import { URLSearchParams } from 'url'
 
 const redirect_uri = `${config.baseUrl}/spotify-app-callback`
 
-export function generateState(): string {
+function generateState(): string {
     return (Math.random() + 1).toString(36).substring(7)
 }
 
-export function getSpotifyLoginUrl(state: string): string {
+export function login(client: Client): string {
+    client.state = generateState()
     const loginUrl: string =
         'https://accounts.spotify.com/authorize?' +
         new URLSearchParams({
@@ -18,7 +20,7 @@ export function getSpotifyLoginUrl(state: string): string {
             client_id: config.spotifyClientId,
             scope: 'playlist-read-private',
             redirect_uri: redirect_uri,
-            state: state,
+            state: client.state,
         })
     return loginUrl
 }
