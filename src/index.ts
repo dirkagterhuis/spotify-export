@@ -1,5 +1,5 @@
-import { generateState, getSpotifyLoginUrl, getAuthToken } from './src/authorization'
-import { getPlaylists, getItemsByPlaylists } from './src/spotifyApiUtils'
+import { generateState, getSpotifyLoginUrl, getAuthToken } from './authorization'
+import { getPlaylists, getItemsByPlaylists } from './spotifyApiUtils'
 
 import express from 'express'
 import http from 'http'
@@ -12,7 +12,7 @@ import { URLSearchParams } from 'url'
 import * as ejs from 'ejs'
 
 import type { Express } from 'express'
-import { FileType, generateReturnFile } from './src/generateReturnFile'
+import { FileType, generateReturnFile } from './generateReturnFile'
 
 const app: Express = express()
 const port: string | number = process.env.PORT || 8000
@@ -29,7 +29,7 @@ interface Client {
 let clients: Client[] = []
 
 // Setup static directory to serve
-app.use(express.static(path.join(__dirname, './public')))
+app.use(express.static(path.join(__dirname, '../public')))
 // To do: add domain of app
 app.use(
     cors({
@@ -42,11 +42,11 @@ app.engine('html', ejs.renderFile)
 
 // remember: static website uses ~/index.html; dynamic website uses ~/public/views/index.html
 app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname + '/public/views/spotify-app.html'))
+    res.sendFile(path.join(__dirname, '../public/views/spotify-app.html'))
 })
 
 app.get('/spotify-app', function (req, res) {
-    res.render(path.join(__dirname + '/public/views/spotify-app.html'), {
+    res.render(path.join(__dirname, '../public/views/spotify-app.html'), {
         showLoading: false,
     })
     console.log(`# Clients @ /spotify-app: ${clients.length}`)
@@ -70,7 +70,7 @@ app.get('/login', function (req, res) {
 
 app.get('/spotify-app-callback', async function (req, res) {
     // use 'redirect', not 'render', as to remove the code from the url
-    res.redirect('/spotify-app')
+    res.redirect('../spotify-app')
 
     console.log('code', req.query.code)
     console.log('state', req.query.state)
@@ -109,7 +109,7 @@ app.get('/spotify-app-callback', async function (req, res) {
 
     // Only do this when developing locally; you don't want this when it's a live server
     if (port === 8000) {
-        fs.writeFileSync('./playlists.json', JSON.stringify(playlists, null, 2))
+        fs.writeFileSync('../playlists.json', JSON.stringify(playlists, null, 2))
     }
 
     const dataStr = io.to(client.socketId).emit('readyForDownload', {
@@ -161,20 +161,9 @@ io.on('connection', (socket) => {
     })
 })
 
-app.get('/weather-app', function (req, res) {
-    res.sendFile(path.join(__dirname + '/public/views/weather-app.html'))
-})
-
-app.get('/chat-app', function (req, res) {
-    res.sendFile(path.join(__dirname + '/public/views/chat-app.html'))
-})
 
 app.get('/about', function (req, res) {
-    res.sendFile(path.join(__dirname + '/public/views/about.html'))
-})
-
-app.get('/help', function (req, res) {
-    res.sendFile(path.join(__dirname + '/public/views/help.html'))
+    res.sendFile(path.join(__dirname, '/public/views/about.html'))
 })
 
 server.listen(port, () => {
