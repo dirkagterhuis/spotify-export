@@ -8,7 +8,7 @@ import cors from 'cors'
 import path from 'path'
 import fs from 'fs'
 import { URLSearchParams } from 'url'
-// can be removed if not used in any html files
+// To do: can be removed if not used in any html files
 import * as ejs from 'ejs'
 
 import type { Express } from 'express'
