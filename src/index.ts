@@ -1,4 +1,5 @@
 import type { Client, FileType} from './types'
+import { config } from '../config'
 import { generateState, getSpotifyLoginUrl, getAuthToken } from './functions/authorization'
 import { getPlaylists, getItemsByPlaylists } from './functions/spotifyApiUtils'
 import { generateReturnFile } from './functions/generateReturnFile'
@@ -23,10 +24,10 @@ let clients: Client[] = []
 
 // Setup static directory to serve
 app.use(express.static(path.join(__dirname, '../public')))
-// To do: add domain of app
+
 app.use(
     cors({
-        origin: 'http://localhost:8000',
+        origin: config.baseUrl,
     })
 )
 
