@@ -42,14 +42,7 @@ app.engine('html', ejs.renderFile)
 
 // remember: static website uses ~/index.html; dynamic website uses ~/public/views/index.html
 app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, '../public/views/spotify-app.html'))
-})
-
-app.get('/spotify-app', function (req, res) {
-    res.render(path.join(__dirname, '../public/views/spotify-app.html'), {
-        showLoading: false,
-    })
-    console.log(`# Clients @ /spotify-app: ${clients.length}`)
+    res.sendFile(path.join(__dirname, '../public/views/index.html'))
 })
 
 app.get('/login', function (req, res) {
@@ -70,7 +63,7 @@ app.get('/login', function (req, res) {
 
 app.get('/spotify-app-callback', async function (req, res) {
     // use 'redirect', not 'render', as to remove the code from the url
-    res.redirect('../spotify-app')
+    res.redirect('../')
 
     console.log('code', req.query.code)
     console.log('state', req.query.state)
@@ -163,7 +156,7 @@ io.on('connection', (socket) => {
 
 
 app.get('/about', function (req, res) {
-    res.sendFile(path.join(__dirname, '/public/views/about.html'))
+    res.sendFile(path.join(__dirname, '../public/views/about.html'))
 })
 
 server.listen(port, () => {
