@@ -1,5 +1,5 @@
 import axios from 'axios'
-const rateLimitingTimeout:number = 100
+const rateLimitingTimeout: number = 100
 
 export async function getPlaylists(token: string, url: string, playlists) {
     let totalToGet: number

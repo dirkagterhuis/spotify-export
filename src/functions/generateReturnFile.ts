@@ -1,4 +1,4 @@
-export type FileType = 'json' | 'csv'
+import type { FileType } from '../types'
 
 export function generateReturnFile(playlists, fileType: FileType): string {
     switch (fileType) {

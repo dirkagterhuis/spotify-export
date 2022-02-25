@@ -1,6 +1,9 @@
+import type { Client, FileType} from './types'
 import { generateState, getSpotifyLoginUrl, getAuthToken } from './functions/authorization'
 import { getPlaylists, getItemsByPlaylists } from './functions/spotifyApiUtils'
+import { generateReturnFile } from './functions/generateReturnFile'
 
+import type { Express } from 'express'
 import express from 'express'
 import http from 'http'
 import { Server } from 'socket.io'
@@ -8,23 +11,13 @@ import cors from 'cors'
 import path from 'path'
 import fs from 'fs'
 import { URLSearchParams } from 'url'
-// To do: can be removed if not used in any html files
 import * as ejs from 'ejs'
-
-import type { Express } from 'express'
-import { FileType, generateReturnFile } from './functions/generateReturnFile'
 
 const app: Express = express()
 const port: string | number = process.env.PORT || 8000
-const server = http.createServer(app) //express does this behind the scenes anyways.
-const io = new Server(server) //but you need the 'server' variable because socket.io needs it as param
+const server = http.createServer(app)
+const io = new Server(server)
 
-interface Client {
-    socketId: string
-    sessionId: string
-    state?: string
-    fileType?: FileType
-}
 // This is probably a bad idea if this thing scales. Probably better use npm-cache or Redis, or a database, when that happens
 let clients: Client[] = []
 
@@ -46,19 +39,16 @@ app.get('/', function (req, res) {
 })
 
 app.get('/login', function (req, res) {
-    console.log('CLICK!')
-    const sessionId: string = req.query.sessionId as string
     const state = generateState()
-    const loginUrl: string = getSpotifyLoginUrl(state)
     const client = clients.find((obj) => {
-        return obj.sessionId === sessionId
+        return obj.sessionId === req.query.sessionId as string
     })
     if (!client) {
         throw new Error(`Request not coming from an active session.`)
     }
     client.state = state
     client.fileType = req.query.fileType as FileType
-    res.redirect(loginUrl)
+    res.redirect(getSpotifyLoginUrl(state))
 })
 
 app.get('/spotify-app-callback', async function (req, res) {
