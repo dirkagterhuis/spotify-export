@@ -1,5 +1,5 @@
-import { generateState, getSpotifyLoginUrl, getAuthToken } from './authorization'
-import { getPlaylists, getItemsByPlaylists } from './spotifyApiUtils'
+import { generateState, getSpotifyLoginUrl, getAuthToken } from './functions/authorization'
+import { getPlaylists, getItemsByPlaylists } from './functions/spotifyApiUtils'
 
 import express from 'express'
 import http from 'http'
@@ -12,7 +12,7 @@ import { URLSearchParams } from 'url'
 import * as ejs from 'ejs'
 
 import type { Express } from 'express'
-import { FileType, generateReturnFile } from './generateReturnFile'
+import { FileType, generateReturnFile } from './functions/generateReturnFile'
 
 const app: Express = express()
 const port: string | number = process.env.PORT || 8000
