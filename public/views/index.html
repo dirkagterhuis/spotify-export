@@ -113,17 +113,18 @@
         let socket = io()
         let loadingMessages = document.getElementById('loadingMessages')
         let loadingMessageList = document.getElementById('loadingMessageList')
-
-        // Ideally, the server would own the sessionId
+        
         let sessionId = sessionStorage.getItem('sessionId')
-        if (!sessionId) {
-            sessionId = (Math.random() + 1).toString(36).substring(7)
-            sessionStorage.setItem('sessionId', sessionId)
-        }
         socket.emit('sessionId', {
             body: sessionId,
         })
         document.getElementById('sessionId').value = sessionId
+
+        socket.on('newSessionId', function (event) {
+            sessionId = event.body
+            sessionStorage.setItem('sessionId', sessionId)
+            document.getElementById('sessionId').value = sessionId
+        })
 
         socket.on('loadingMessage', function (event) {
             console.log(`MESSAGE ON CLIENT INCOMING: ${JSON.stringify(event)}`)

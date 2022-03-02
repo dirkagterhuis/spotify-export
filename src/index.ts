@@ -99,28 +99,25 @@ io.on('connection', (socket) => {
     console.log(`Connected`)
     console.log(`Socket Id is: ${socket.id}`)
 
-    let sessionId: string
     socket.on('sessionId', function (event) {
-        if (!event.body) {
-            throw new Error(`Incoming sessionId on Server is undefined`)
-        }
-        sessionId = event.body
-
-        // first check if client exists already based on sessionId
-        const matchingClients = clients.filter((client) => {
+        if (event.body === undefined) {
+            newClient(socket.id)
+            return
+        } 
+        const sessionId: string = event.body
+        const matchingClients: Client[] = clients.filter((client) => {
             return client.sessionId === sessionId
         })
         if (matchingClients.length > 1) {
-            throw new Error(`Multiple clients with the same sessionId`)
+            const errorMessage: string = `Multiple clients with the same sessionId: ${sessionId}`
+            console.log(errorMessage)
+            throw new Error(errorMessage)
         }
         if (matchingClients.length === 0) {
-            clients.push({
-                sessionId,
-                socketId: socket.id,
-            })
-        } else {
-            matchingClients[0].socketId = socket.id
-        }
+            newClient(socket.id)
+            return
+        } 
+        matchingClients[0].socketId = socket.id
     })
 
     // clear client after 1 hour
@@ -150,5 +147,17 @@ server.listen(port, () => {
 function sendLoadingMessageToClient(socketId, message: string) {
     io.to(socketId).emit('loadingMessage', {
         body: message,
+    })
+}
+
+function newClient(socketId: string) {
+    const sessionId: string = (Math.random() + 1).toString(36).substring(7)
+    console.log(`Getting new session id: ${sessionId}`)
+    clients.push({
+        sessionId,
+        socketId: socketId,
+    })
+    io.to(socketId).emit('newSessionId', {
+        body: sessionId
     })
 }
