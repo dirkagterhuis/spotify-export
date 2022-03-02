@@ -1,4 +1,4 @@
-// Uses Spotify OAuth flow for web apps: https://developer.spotify.com/documentation/general/guides/authorization/code-flow/
+// Uses Spotify OAuth flow for web apps: https://developer.spotify.com/documentation/general/guides/authorization/code-flow/.
 import type { Client } from '../types'
 import { config } from '../../config'
 

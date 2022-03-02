@@ -33,7 +33,7 @@ function csvFromJSON(playlists): string {
         const playlist = playlists[i]
         const items = playlist.items
 
-        // In dev, not all playlists have items because not all tracks are retrieved for all playlists
+        // In dev, not all playlists have items because not all tracks are retrieved for all playlists.
         if (!items) {
             continue
         }
@@ -72,7 +72,7 @@ function csvFromJSON(playlists): string {
     return ret
 }
 
-// Escape comma's in .csv by placing all elements in double quotes and escaping double quotes with an extra double quote
+// Escape comma's in .csv by placing all elements in double quotes and escaping double quotes with an extra double quote.
 function handleCommas(input: string[]): void {
     for (let i = 0; i < input.length; i++) {
         input[i] = `"${input[i].replaceAll('"', "\"")}"`

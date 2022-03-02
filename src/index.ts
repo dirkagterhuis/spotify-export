@@ -19,10 +19,10 @@ const port: string | number = process.env.PORT || 8000
 const server = http.createServer(app)
 const io = new Server(server)
 
-//TODO This is probably a bad idea if this thing scales. Probably better use npm-cache or Redis, or a database, when that happens
+//TODO This is probably a bad idea if this thing scales. Probably better use npm-cache or Redis, or a database, when that happens.
 let clients: Client[] = []
 
-// Setup static directory to serve
+// Setup static directory to serve.
 app.use(express.static(path.join(__dirname, '../public')))
 
 app.use(
@@ -31,7 +31,7 @@ app.use(
     })
 )
 
-// Only want to use html with some variables -> using EJS
+// Only want to use html with some variables -> using EJS.
 app.engine('html', ejs.renderFile)
 
 app.get('/', function (req, res) {
@@ -50,7 +50,7 @@ app.get('/login', function (req, res) {
 })
 
 app.get('/spotify-app-callback', async function (req, res) {
-    // In order to remove the code from the url
+    // In order to remove the code from the url.
     res.redirect('../')
 
     const code: string = (req.query.code as string) || null
@@ -61,7 +61,7 @@ app.get('/spotify-app-callback', async function (req, res) {
 
     // This is a bit dodgy as socket.io creating the client will race with getting the auth token
     // Also, ideally, you'd also get the sessionId in the callback and get the client.state from there (not possible), 
-    // or redirect to a new page and get the session id. But, then the user would have to click again. -> use State
+    // or redirect to a new page and get the session id. But, then the user would have to click again -> use State.
     const client = clients.find((client) => {
         return client.state === state
     })
@@ -122,7 +122,7 @@ io.on('connection', (socket) => {
         matchingClients[0].socketId = socket.id
     })
 
-    // clear client after 1 hour
+    // Clear client after 1 hour.
     socket.on('disconnect', () => {
         console.log('user disconnected')
         setTimeout(function () {

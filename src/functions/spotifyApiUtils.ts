@@ -40,7 +40,7 @@ export async function getItemsByPlaylists(
 ) {
     console.log(`Getting all tracks for ${playlists.length} playlists.`)
 
-    // Get all playlists for production but 10 for dev
+    // Get all playlists for production but 10 for dev.
     const numberOfPlaylistsToGet: number = process.env.PORT ? playlists.length : 10
     for (let i = 0; i < numberOfPlaylistsToGet; i++) {
         console.log(
@@ -70,8 +70,8 @@ async function getItemsByPlaylist(token: string, url: string, playlistItems) {
             },
             params: {
                 limit: 50,
-                // see https://developer.spotify.com/documentation/web-api/reference/#/operations/get-track for all fields
-                // test fields here with token: https://developer.spotify.com/console/get-playlist-tracks/
+                // See https://developer.spotify.com/documentation/web-api/reference/#/operations/get-track for all fields.
+                // Test fields here with token: https://developer.spotify.com/console/get-playlist-tracks/.
                 fields: 'total,next,items(track(id,name,album.name,artists(name),href))',
             },
         })
@@ -89,7 +89,8 @@ async function getItemsByPlaylist(token: string, url: string, playlistItems) {
             }
             return playlistItems
         }
-        await new Promise(resolve => setTimeout(resolve, rateLimitingTimeout)) //timeout needed to prevent rate limiting issues enforced by Spotify.
+        // Timeout needed to prevent rate limiting issues enforced by Spotify.
+        await new Promise(resolve => setTimeout(resolve, rateLimitingTimeout)) 
         await getItemsByPlaylist(token, next, playlistItems)
 
     } catch (error) {
