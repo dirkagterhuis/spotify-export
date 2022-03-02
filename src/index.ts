@@ -1,6 +1,6 @@
 import type { Client, FileType} from './types'
 import { config } from '../config'
-import { login, getAuthToken } from './functions/authorization'
+import { login, getAuthToken, validateState} from './functions/authorization'
 import { getPlaylists, getItemsByPlaylists } from './functions/spotifyApiUtils'
 import { generateReturnFile } from './functions/generateReturnFile'
 
@@ -53,44 +53,31 @@ app.get('/spotify-app-callback', async function (req, res) {
     // In order to remove the code from the url.
     res.redirect('../')
 
-    const code: string = (req.query.code as string) || null
-    const state = req.query.state || null
+    const code: string = req.query.code as string || null
+    const state = req.query.state as string || null
     const error = req.query.error || null
 
     const authToken = await getAuthToken(code)
 
-    // This is a bit dodgy as socket.io creating the client will race with getting the auth token
-    // Also, ideally, you'd also get the sessionId in the callback and get the client.state from there (not possible), 
-    // or redirect to a new page and get the session id. But, then the user would have to click again -> use State.
+    // Ideally, you'd also get the sessionId in the callback and get the client.state from there (not possible), 
+    // or redirect to a new page and get the session id. But, then the user would have to click again -> use State to match.
     const client = clients.find((client) => {
         return client.state === state
     })
-    if (!client) {
-        const errorMessage: string = `Error(state_mismatch): no active client found with received state`
-        console.log(errorMessage)
-    }
-    if (state !== client.state) {
-        const errorMessage: string = `Error(state_mismatch): different state on client. Get outta here!`
-        console.log(errorMessage)
-        sendLoadingMessageToClient(client.socketId, errorMessage)
-    }
-
+    validateState(client, state, sendLoadingMessageToClient)
     sendLoadingMessageToClient(client.socketId, `Succesfully signed in to your Spotify Account`)
 
     const playlists = await getPlaylists(authToken, 'https://api.spotify.com/v1/me/playlists', [])
-
     sendLoadingMessageToClient(
         client.socketId,
         `Retrieved ${playlists.length} playlists from your Spotify Account`
     )
 
     await getItemsByPlaylists(authToken, playlists, sendLoadingMessageToClient, client.socketId)
-
     // Only do this when running locally in order to store the file directly.
     if (port === 8000) {
         fs.writeFileSync('../playlists.json', JSON.stringify(playlists, null, 2))
     }
-
     io.to(client.socketId).emit('readyForDownload', {
         body: generateReturnFile(playlists, client.fileType),
         fileType: client.fileType,

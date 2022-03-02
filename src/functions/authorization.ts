@@ -58,3 +58,15 @@ export async function getAuthToken(code: string) {
         throw new Error(error)
     }
 }
+
+export function validateState(client: Client, state: string, sendLoadingMessageToClient: Function) {
+    if (!client) {
+        const errorMessage: string = `Error(state_mismatch): no active client found with received state`
+        console.log(errorMessage)
+    }
+    if (state !== client.state) {
+        const errorMessage: string = `Error(state_mismatch): different state on client. Get outta here!`
+        console.log(errorMessage)
+        sendLoadingMessageToClient(client.socketId, errorMessage)
+    }
+}
