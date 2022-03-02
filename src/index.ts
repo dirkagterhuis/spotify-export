@@ -59,8 +59,8 @@ app.get('/spotify-app-callback', async function (req, res) {
 
     const authToken = await getAuthToken(code)
 
-    // this is a bit dodgy as socket.io creating the client will race with getting the auth token
-    // also, ideally, you'd also get the sessionId in the callback and get the client.state from there
+    // This is a bit dodgy as socket.io creating the client will race with getting the auth token
+    // Also, ideally, you'd also get the sessionId in the callback and get the client.state from there
     const client = clients.find((client) => {
         return client.state === state
     })
@@ -73,23 +73,23 @@ app.get('/spotify-app-callback', async function (req, res) {
         )
     }
 
-    sendMessageToClient(client.socketId, `Succesfully signed in to your Spotify Account`)
+    sendLoadingMessageToClient(client.socketId, `Succesfully signed in to your Spotify Account`)
 
     const playlists = await getPlaylists(authToken, 'https://api.spotify.com/v1/me/playlists', [])
 
-    sendMessageToClient(
+    sendLoadingMessageToClient(
         client.socketId,
         `Retrieved ${playlists.length} playlists from your Spotify Account`
     )
 
-    await getItemsByPlaylists(authToken, playlists, sendMessageToClient, client.socketId)
+    await getItemsByPlaylists(authToken, playlists, sendLoadingMessageToClient, client.socketId)
 
     // Only do this when developing locally; you don't want this when it's a live server
     if (port === 8000) {
         fs.writeFileSync('../playlists.json', JSON.stringify(playlists, null, 2))
     }
 
-    const dataStr = io.to(client.socketId).emit('readyForDownload', {
+    io.to(client.socketId).emit('readyForDownload', {
         body: generateReturnFile(playlists, client.fileType),
         fileType: client.fileType,
     })
@@ -147,7 +147,7 @@ server.listen(port, () => {
     console.log(`Server is up on port ${port}!`)
 })
 
-function sendMessageToClient(socketId, message: string) {
+function sendLoadingMessageToClient(socketId, message: string) {
     io.to(socketId).emit('loadingMessage', {
         body: message,
     })
