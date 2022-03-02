@@ -19,7 +19,7 @@ const port: string | number = process.env.PORT || 8000
 const server = http.createServer(app)
 const io = new Server(server)
 
-// This is probably a bad idea if this thing scales. Probably better use npm-cache or Redis, or a database, when that happens
+//TODO This is probably a bad idea if this thing scales. Probably better use npm-cache or Redis, or a database, when that happens
 let clients: Client[] = []
 
 // Setup static directory to serve
@@ -60,17 +60,19 @@ app.get('/spotify-app-callback', async function (req, res) {
     const authToken = await getAuthToken(code)
 
     // This is a bit dodgy as socket.io creating the client will race with getting the auth token
-    // Also, ideally, you'd also get the sessionId in the callback and get the client.state from there
+    // Also, ideally, you'd also get the sessionId in the callback and get the client.state from there (not possible), 
+    // or redirect to a new page and get the session id. But, then the user would have to click again. -> use State
     const client = clients.find((client) => {
         return client.state === state
     })
     if (!client) {
-        res.redirect(
-            '/#' +
-                new URLSearchParams({
-                    error: 'state_mismatch: no active client found with received state',
-                })
-        )
+        const errorMessage: string = `Error(state_mismatch): no active client found with received state`
+        console.log(errorMessage)
+    }
+    if (state !== client.state) {
+        const errorMessage: string = `Error(state_mismatch): different state on client. Get outta here!`
+        console.log(errorMessage)
+        sendLoadingMessageToClient(client.socketId, errorMessage)
     }
 
     sendLoadingMessageToClient(client.socketId, `Succesfully signed in to your Spotify Account`)
@@ -84,7 +86,7 @@ app.get('/spotify-app-callback', async function (req, res) {
 
     await getItemsByPlaylists(authToken, playlists, sendLoadingMessageToClient, client.socketId)
 
-    // Only do this when developing locally; you don't want this when it's a live server
+    // Only do this when running locally in order to store the file directly.
     if (port === 8000) {
         fs.writeFileSync('../playlists.json', JSON.stringify(playlists, null, 2))
     }
@@ -134,7 +136,6 @@ io.on('connection', (socket) => {
         }, 3600000)
     })
 })
-
 
 app.get('/about', function (req, res) {
     res.sendFile(path.join(__dirname, '../public/views/about.html'))

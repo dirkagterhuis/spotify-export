@@ -33,7 +33,7 @@ function csvFromJSON(playlists): string {
         const playlist = playlists[i]
         const items = playlist.items
 
-        // in dev, not all playlists have items because not all tracks are retrieved for all playlists
+        // In dev, not all playlists have items because not all tracks are retrieved for all playlists
         if (!items) {
             continue
         }
@@ -65,14 +65,16 @@ function csvFromJSON(playlists): string {
                 track.href,
             ]
 
-            // Escape comma's in .csv
-            for (let l = 0; l < retNewLine.length; l++) {
-                // TODO: replaceAll not always supported. Read up on: https://stackoverflow.com/questions/8493195/how-can-i-parse-a-csv-string-with-javascript-which-contains-comma-in-data
-                // retNewLine[l].replaceAll(',', '","')
-            }
-
+            handleCommas(retNewLine)
             ret += `\n${retNewLine.join(',')}`
         }
     }
     return ret
+}
+
+// Escape comma's in .csv by placing all elements in double quotes and escaping double quotes with an extra double quote
+function handleCommas(input: string[]): void {
+    for (let i = 0; i < input.length; i++) {
+        input[i] = `"${input[i].replaceAll('"', "\"")}"`
+    }
 }
