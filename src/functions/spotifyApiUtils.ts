@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { config } from '../../config'
 const rateLimitingTimeout: number = 100
 
 export async function getPlaylists(token: string, url: string, playlists) {
@@ -7,6 +8,7 @@ export async function getPlaylists(token: string, url: string, playlists) {
         const getPlaylistResponse = await axios.get(url, {
             headers: {
                 Authorization: 'Bearer ' + token,
+                Origin: config.baseUrl
             },
             params: {
                 limit: 50,
@@ -67,6 +69,7 @@ async function getItemsByPlaylist(token: string, url: string, playlistItems) {
         const getPlaylistItemResponse = await axios.get(url, {
             headers: {
                 Authorization: 'Bearer ' + token,
+                Origin: config.baseUrl
             },
             params: {
                 limit: 50,

@@ -11,7 +11,6 @@ import { Server } from 'socket.io'
 import cors from 'cors'
 import path from 'path'
 import fs from 'fs'
-import { URLSearchParams } from 'url'
 import * as ejs from 'ejs'
 
 const app: Express = express()
@@ -19,7 +18,8 @@ const port: string | number = process.env.PORT || 8000
 const server = http.createServer(app)
 const io = new Server(server)
 
-//TODO This is probably a bad idea if this thing scales. Probably better use npm-cache or Redis, or a database, when that happens.
+// TODO This is probably a bad idea if this thing scales. Probably better use npm-cache or Redis, or a database, when that happens.
+// This implementation also inhibits making this file more modular
 let clients: Client[] = []
 
 // Setup static directory to serve.

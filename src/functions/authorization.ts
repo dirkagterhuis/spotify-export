@@ -45,6 +45,7 @@ export async function getAuthToken(code: string) {
                             config.spotifyClientId + ':' + config.spotifyClientSecret
                         ).toString('base64'),
                     'Content-Type': 'application/x-www-form-urlencoded',
+                    'Origin': config.baseUrl
                 },
             }
         )
