@@ -113,16 +113,18 @@
         let socket = io()
         let loadingMessages = document.getElementById('loadingMessages')
         let loadingMessageList = document.getElementById('loadingMessageList')
-
+        
         let sessionId = sessionStorage.getItem('sessionId')
-        if (!sessionId) {
-            sessionId = (Math.random() + 1).toString(36).substring(7)
-            sessionStorage.setItem('sessionId', sessionId)
-        }
         socket.emit('sessionId', {
             body: sessionId,
         })
         document.getElementById('sessionId').value = sessionId
+
+        socket.on('newSessionId', function (event) {
+            sessionId = event.body
+            sessionStorage.setItem('sessionId', sessionId)
+            document.getElementById('sessionId').value = sessionId
+        })
 
         socket.on('loadingMessage', function (event) {
             console.log(`MESSAGE ON CLIENT INCOMING: ${JSON.stringify(event)}`)
@@ -141,8 +143,8 @@
         socket.on('readyForDownload', function (event) {
             const downloadAnchorNode = document.createElement('a')
             downloadAnchorNode.setAttribute('href', event.body)
-            //TO DO: add date to file name
-            downloadAnchorNode.setAttribute('download', `spotify-playlists.${event.fileType}`)
+            const fileName = `spotify playlists export ${new Date(Date.now()).toLocaleString('sv-SV')}.${event.fileType}` // spotify playlists export 2022-03-02 21_32_36
+            downloadAnchorNode.setAttribute('download', fileName)
             document.body.appendChild(downloadAnchorNode) // required for firefox
             downloadAnchorNode.click()
             downloadAnchorNode.remove()

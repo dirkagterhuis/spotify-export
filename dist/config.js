@@ -6,16 +6,20 @@ exports.__esModule = true;
 exports.config = void 0;
 var fs_1 = __importDefault(require("fs"));
 var js_yaml_1 = __importDefault(require("js-yaml"));
-//TODO only do this when localy.yml is there
+// Only set localConfig in dev
 var localConfig;
-try {
-    localConfig = js_yaml_1["default"].load(fs_1["default"].readFileSync('./local.yml', 'utf8'));
-}
-catch (e) {
-    console.log(e);
+if (process.env.NODE_ENV === undefined || process.env.NODE_ENV === 'dev') {
+    try {
+        localConfig = js_yaml_1["default"].load(fs_1["default"].readFileSync('./local.yml', 'utf8'));
+    }
+    catch (e) {
+        throw new Error("In dev environment, localConfig isn't configured correctly: ".concat(e.message));
+    }
 }
 exports.config = {
     env: process.env.NODE_ENV || 'dev',
+    //TODO: change to https when secure.
+    baseUrl: process.env.NODE_ENV ? 'http://spotifyexport.com' : 'http://localhost:8000',
     spotifyClientId: process.env.SPOTIFY_APP_CLIENT_ID || localConfig.localSpotifyAppClientId,
     spotifyClientSecret: process.env.SPOTIFY_APP_CLIENT_SECRET || localConfig.localSpotifyAppClientSecret
 };

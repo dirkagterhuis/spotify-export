@@ -51,7 +51,7 @@ app.get('/login', function (req, res) {
 
 app.get('/spotify-app-callback', async function (req, res) {
     // In order to remove the code from the url.
-    res.redirect('../')
+    res.redirect('/')
 
     const code: string = req.query.code as string || null
     const state = req.query.state as string || null
