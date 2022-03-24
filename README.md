@@ -18,8 +18,8 @@ The application is built in Typescript and is currently hosted on AWS. You can a
 - Improve error handling to user: use `sendLoadingMessageToClient()` or use error page.
 
 # Technical improvements
+- Clean up `index.ts` and implement proper routing for api routes and socket.io, e.g. [example](https://stackoverflow.com/questions/59681974/how-to-organize-routes-in-nodejs-express-app) or [for socket.io](https://stackoverflow.com/questions/20466129/how-to-organize-socket-handling-in-node-js-and-socket-io-app). 
 - Track traffic.
-- Implement proper routing for api routes and socket.io, e.g. [example](https://stackoverflow.com/questions/59681974/how-to-organize-routes-in-nodejs-express-app) or [for socket.io](https://stackoverflow.com/questions/20466129/how-to-organize-socket-handling-in-node-js-and-socket-io-app). 
 - Add types everywhere. 
 - Add unit tests everywhere.
 - Add versioning and versions based on commit messages.
