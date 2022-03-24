@@ -16,33 +16,29 @@
             </p>
             <h2 class="centre">Nice. Why?</h2>
             <p>
-                Maybe (like me) you're a data hoarder and want someplace to save the music you're
-                enjoying today. Or maybe, like me, you've created your Spotify account using your
-                Facebook account and you want to move all your playlists to a new, Facebook-free
-                Spotify account. In the future, you'll also be able to import/upload the exported
-                playlists from another account, into another Spotify account of your choosing.
+                If you want to backup the music you're enjoying today in a way that you will always
+                be able to access it.
             </p>
-            <h2 class="centre">Nice. How?</h2>
+            <h2 class="centre">How does it work?</h2>
             <p>
                 Just click the big green button below. You can then login to your Spotify account
                 and give this app the permissions to read your playlists. Then, all your playlists
                 will be retrieved.
             </p>
-            <h2 class="centre">Nice. File type?</h2>
+            <h2 class="centre">How will I get the export?</h2>
             <p>
                 You can choose to export as <a href="https://en.wikipedia.org/wiki/JSON">json</a> or
                 <a href="https://en.wikipedia.org/wiki/Comma-separated_values">csv</a>. If you don't
-                know what json is, choose csv. If you don't know what csv is: you can easily turn
-                this into an excel file.
+                know what json is, choose csv. If you don't know what csv is: you can easily turn it
+                into an Excel file.
             </p>
-            <h2 class="centre">Nice. Disclaimer?</h2>
+            <h2 class="centre">What about my data?</h2>
             <p>
-                No data is stored anywhere but on your browser, and this isn't being tracked.
-                Although data is currently only retrieved from your Spotify account, use this at
-                your own risk.
+                No data is stored anywhere but on your browser, and nothing is tracked. Although
+                this app only retrieved data from your Spotify account, use it at your own risk.
             </p>
             <div>
-                <h2 class="centre">Nice. Let's get started!</h2>
+                <h2 class="centre">Let's get started!</h2>
                 <form id="spotifyLogin" action="/login">
                     <div>
                         <p>
@@ -113,7 +109,7 @@
         let socket = io()
         let loadingMessages = document.getElementById('loadingMessages')
         let loadingMessageList = document.getElementById('loadingMessageList')
-        
+
         let sessionId = sessionStorage.getItem('sessionId')
         socket.emit('sessionId', {
             body: sessionId,
@@ -143,7 +139,9 @@
         socket.on('readyForDownload', function (event) {
             const downloadAnchorNode = document.createElement('a')
             downloadAnchorNode.setAttribute('href', event.body)
-            const fileName = `spotify playlists export ${new Date(Date.now()).toLocaleString('sv-SV')}.${event.fileType}` // spotify playlists export 2022-03-02 21_32_36
+            const fileName = `spotify playlists export ${new Date(Date.now()).toLocaleString(
+                'sv-SV'
+            )}.${event.fileType}` // spotify playlists export 2022-03-02 21_32_36
             downloadAnchorNode.setAttribute('download', fileName)
             document.body.appendChild(downloadAnchorNode) // required for firefox
             downloadAnchorNode.click()
