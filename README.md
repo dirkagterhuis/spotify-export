@@ -45,6 +45,8 @@ localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
 
 ## Build
 - `npm run build`. For some reason, this could give `Missing script: "build"`. In that case, copy-pasta the script.
+- Push to AWS codecommit repo. 
+- `eb deploy`
 
 # Changelog
 - Converted to Typescript.
