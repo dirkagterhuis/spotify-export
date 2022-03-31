@@ -1,7 +1,7 @@
 {
   "main": "dist/src/index.js",
   "scripts": {
-    "start": "tsc && node dist/src/index.js",
+    "start": "npx tsc && node dist/src/index.js",
     "build:": "npx tsc -p tsconfig.json && rm -rf ./dist/public && cp -R ./public ./dist/public",
     "dev": "nodemon src/index.ts --ext .js,.ts,.html,.json"
   },
