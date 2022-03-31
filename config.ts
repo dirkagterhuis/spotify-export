@@ -3,6 +3,7 @@ import yaml from 'js-yaml'
 
 // Only set localConfig in dev
 let localConfig
+console.log(`%%% process.env.NODE_ENV: ${process.env.NODE_ENV}`)
 if (process.env.NODE_ENV === undefined || process.env.NODE_ENV === 'dev') {
     try {
         localConfig = yaml.load(fs.readFileSync('./local.yml', 'utf8'))
