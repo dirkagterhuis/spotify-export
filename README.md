@@ -51,7 +51,7 @@ localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
 # Changelog
 - Converted to Typescript.
 - Implemented Socket.io as a framework to push statusupdates from server to client. The alternative was using Server Side Events (SSE). Although the use case is unidirectional and I'm not using binaries in the communication, SSE's have a limit to the number of open connections.
-- Made separate repo for `spotify-export.com`
+- Made separate repo for `spotifyexport.com`
 - Support .csv file format, escape `,` in e.g. track names.
 - Added a timeout for playlists with > 50 items to adhere to the rate limiting enforced by Spotify.
 
