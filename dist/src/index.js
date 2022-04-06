@@ -116,7 +116,6 @@ app.get('/spotify-app-callback', function (req, res) {
                     client = clients.find(function (client) {
                         return client.state === state;
                     });
-                    // io.to(client.socketId).emit('initiateLoadingMessages')
                     (0, authorization_1.validateState)(client, state, sendLoadingMessageToClient);
                     sendLoadingMessageToClient(client.socketId, "Succesfully signed in to your Spotify Account");
                     return [4 /*yield*/, (0, spotifyApiUtils_1.getPlaylists)(authToken, 'https://api.spotify.com/v1/me/playlists', [])];

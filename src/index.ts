@@ -64,7 +64,6 @@ app.get('/spotify-app-callback', async function (req, res) {
     const client = clients.find((client) => {
         return client.state === state
     })
-    // io.to(client.socketId).emit('initiateLoadingMessages')
     validateState(client, state, sendLoadingMessageToClient)
     sendLoadingMessageToClient(client.socketId, `Succesfully signed in to your Spotify Account`)
 
