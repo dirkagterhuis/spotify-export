@@ -72,7 +72,8 @@ header a {
     margin: 0; /* Remove margins */
     overflow: auto;
     /* overflow-y: scroll; */
-    max-height: 200px;
+    /* max-height: 200px; */
+    height: 200px;
     background: #DCDCDC;
     color: #696969;
 }
