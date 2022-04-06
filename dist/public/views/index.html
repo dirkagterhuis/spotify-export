@@ -127,15 +127,16 @@
             document.getElementById('sessionId').value = sessionId
         })
 
-        socket.on('initiateLoadingMessages', function (event) {
+        /*socket.on('initiateLoadingMessages', function (event) {
             loadingMessages.style.display = 'block'
             const loadingMessagesMaxHeight = parseFloat(getComputedStyle(loadingMessages).height)
             const scrollToY = loadingMessages.getBoundingClientRect().top - loadingMessagesMaxHeight
             window.scrollTo({top: scrollToY, behavior: 'smooth'});
-        })
+        })*/
 
         socket.on('loadingMessage', function (event) {
             console.log(`MESSAGE ON CLIENT INCOMING: ${JSON.stringify(event)}`)
+            console.log(`%%%%%%%%%%%%%`)
             var item = document.createElement('li')
             item.textContent = event.body
             loadingMessageList.appendChild(item)
