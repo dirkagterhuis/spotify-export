@@ -54,6 +54,7 @@ localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
 - Made separate repo for `spotifyexport.com`
 - Support .csv file format, escape `,` in e.g. track names.
 - Added a timeout for playlists with > 50 items to adhere to the rate limiting enforced by Spotify.
+- After login redirect, the windows scrolls to the loadingmessages / progress messages.
 
 # Troubleshooting
 - During auth/login to spotify: redirect isn't working: Solution: add `http://localhost:8000/spotify-app` to the allowed redirect URI's on developer.spotify.com.
