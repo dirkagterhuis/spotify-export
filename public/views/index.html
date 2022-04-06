@@ -106,14 +106,14 @@
     </script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        let socket = io()
+        let loadingMessages = document.getElementById('loadingMessages')
+        let loadingMessageList = document.getElementById('loadingMessageList')
+
         // Scroll to top on refresh
         window.onbeforeunload = function () {
             window.scrollTo(0, 0);
         }
-        
-        let socket = io()
-        let loadingMessages = document.getElementById('loadingMessages')
-        let loadingMessageList = document.getElementById('loadingMessageList')
 
         let sessionId = sessionStorage.getItem('sessionId')
         socket.emit('sessionId', {
