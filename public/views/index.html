@@ -136,6 +136,7 @@
 
         socket.on('loadingMessage', function (event) {
             console.log(`MESSAGE ON CLIENT INCOMING: ${JSON.stringify(event)}`)
+            console.log(`%%%%%%%%%%%%%`)
             var item = document.createElement('li')
             item.textContent = event.body
             loadingMessageList.appendChild(item)
