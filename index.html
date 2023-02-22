@@ -1,2 +1,193 @@
-This site is currently and indefinitely down for maintenance. Please clone this repository from
-https://github.com/dirkagterhuis/spotify-export to use your device to make an export.
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="./img/weather.png" />
+        <link rel="stylesheet" href="./public/css/styles.css" />
+    </head>
+    <body>
+        <!-- <div w3-include-html="./public/views/header.html"></div> -->
+        <header>
+            <h1>spotifyexport.com</h1>
+            <a href="/">spotify export</a> |
+            <a href="./public/views/about.html">about</a>
+        </header>
+        <div class="main-content">
+            <p class="centre" style="color: red">***</p>
+            <p class="centre" style="color: red">
+                This site is currently and indefinitely down for maintenance. Please clone this
+                repository from https://github.com/dirkagterhuis/spotify-export to use your local
+                machine to make an export.
+            </p>
+            <p class="centre" style="color: red">***</p>
+            <p class="centre">
+                Welcome to spotifyexport.com. Here you can export your Spotify playlists from
+                Spotify.
+            </p>
+            <h2 class="centre">Nice. Why?</h2>
+            <p>
+                If you want to backup the music you're enjoying today in a way that you will always
+                be able to access it.
+            </p>
+            <h2 class="centre">How does it work?</h2>
+            <p>
+                Just click the big green button below. You can then login to your Spotify account
+                and give this app the permissions to read your playlists. Then, all your playlists
+                will be retrieved and all playlist items will be included in the export.
+            </p>
+            <h2 class="centre">How will I get the export?</h2>
+            <p>
+                You can choose to export as <a href="https://en.wikipedia.org/wiki/JSON">json</a> or
+                <a href="https://en.wikipedia.org/wiki/Comma-separated_values">csv</a>. If you don't
+                know what json is, choose csv. If you don't know what csv is: you can easily turn it
+                into an Excel file.
+            </p>
+            <h2 class="centre">What about my data?</h2>
+            <p>
+                No data is stored anywhere but on your browser, and nothing is tracked. Although
+                this app only retrieves data from your Spotify account, use it at your own risk.
+            </p>
+            <div>
+                <h2 class="centre">Let's get started!</h2>
+                <form id="spotifyLogin" action="/login">
+                    <div>
+                        <p>
+                            Please select in which file format you would like to retrieve your
+                            playlists:
+                        </p>
+                        <div class="centre">
+                            <input
+                                type="radio"
+                                id="json"
+                                name="fileType"
+                                value="json"
+                                onclick="handleFileTypeSelection()"
+                                checked
+                            />
+                            <label for="json">json</label>
+                            <input
+                                type="radio"
+                                id="csv"
+                                name="fileType"
+                                value="csv"
+                                onclick="handleFileTypeSelection()"
+                            />
+                            <label for="csv">csv</label>
+                        </div>
+                    </div>
+                    <!-- for an empty line between, lazyness -->
+                    <div class="empty-div"></div>
+                    <div class="centre">
+                        <input type="submit" value="Get my playlists!" class="spotify-button" />
+                    </div>
+                    <!-- magic: this will be passed as query param in the url: -->
+                    <input type="hidden" name="sessionId" id="sessionId" />
+                </form>
+            </div>
+
+            <!-- for an empty line between, lazyness -->
+            <div class="empty-div"></div>
+
+            <div id="loadingMessages" class="loadingMessages" hidden>
+                <ul id="loadingMessageList" class="loadingMessageList"></ul>
+            </div>
+        </div>
+        <!-- <div w3-include-html="./public/views/footer.html"></div> -->
+        <footer>
+            <p>Created by Dirk Agterhuis</p>
+        </footer>
+    </body>
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+        src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"
+    ></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"
+    ></script>
+    <script
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"
+    ></script>
+    <script src="./public/js/includeHTML.js"></script>
+    <script>
+        includeHTML()
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = io()
+        let loadingMessages = document.getElementById('loadingMessages')
+        let loadingMessageList = document.getElementById('loadingMessageList')
+
+        // Scroll to top on refresh
+        window.onbeforeunload = function () {
+            window.scrollTo(0, 0)
+        }
+
+        let sessionId = sessionStorage.getItem('sessionId')
+        socket.emit('sessionId', {
+            body: sessionId,
+        })
+        document.getElementById('sessionId').value = sessionId
+
+        socket.on('newSessionId', function (event) {
+            sessionId = event.body
+            sessionStorage.setItem('sessionId', sessionId)
+            document.getElementById('sessionId').value = sessionId
+        })
+
+        socket.on('loadingMessage', function (event) {
+            console.log(`MESSAGE ON CLIENT INCOMING: ${JSON.stringify(event)}`)
+
+            // Tried using a dedicated event to initiate loading messages, but socket.io didn't like it.
+            if (!loadingMessages.style.display) {
+                loadingMessages.style.display = 'block'
+                const loadingMessagesMaxHeight = parseFloat(
+                    getComputedStyle(loadingMessages).height
+                )
+                const scrollToY =
+                    loadingMessages.getBoundingClientRect().top - loadingMessagesMaxHeight
+                window.scrollTo({ top: scrollToY, behavior: 'smooth' })
+            }
+
+            var item = document.createElement('li')
+            item.textContent = event.body
+            loadingMessageList.appendChild(item)
+            loadingMessages.scrollTop = loadingMessages.scrollHeight
+        })
+
+        // Sent using socket.io; no html element needed; vanilla JS without HTML element.
+        // Source: https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
+        socket.on('readyForDownload', function (event) {
+            const downloadAnchorNode = document.createElement('a')
+            downloadAnchorNode.setAttribute('href', event.body)
+            const fileName = `spotify playlists export ${new Date(Date.now()).toLocaleString(
+                'sv-SV'
+            )}.${event.fileType}` // spotify playlists export 2022-03-02 21_32_36
+            downloadAnchorNode.setAttribute('download', fileName)
+            document.body.appendChild(downloadAnchorNode) // required for firefox
+            downloadAnchorNode.click()
+            downloadAnchorNode.remove()
+        })
+    </script>
+    <script>
+        // Remember fileType selection
+        const selectedFileTypeFromStorage = sessionStorage.getItem('selectedFileType')
+        if (selectedFileTypeFromStorage) {
+            document.querySelector(
+                `input[name="fileType"][value="${selectedFileTypeFromStorage}"]`
+            ).checked = true
+        }
+
+        function handleFileTypeSelection() {
+            const selectedFileType = document.querySelector('input[name="fileType"]:checked').value
+            sessionStorage.setItem('selectedFileType', selectedFileType)
+        }
+    </script>
+</html>
