@@ -7,6 +7,7 @@ import { generateReturnFile } from './functions/generateReturnFile'
 import type { Express } from 'express'
 import express from 'express'
 import http from 'http'
+import https from 'https'
 import { Server } from 'socket.io'
 import cors from 'cors'
 import path from 'path'
@@ -15,7 +16,15 @@ import * as ejs from 'ejs'
 
 const app: Express = express()
 const port: string | number = process.env.PORT || 8000
-const server = http.createServer(app)
+const server = config.env === 'dev'
+    ? https.createServer(
+        {
+            key: fs.readFileSync(path.join(__dirname, '../dev.spotifyexport.com-key.pem')),
+            cert: fs.readFileSync(path.join(__dirname, '../dev.spotifyexport.com.pem')),
+        },
+        app
+    )
+    : http.createServer(app)
 const io = new Server(server)
 
 // TODO This is probably a bad idea if this thing scales. Probably better use npm-cache or Redis, or a database, when that happens.

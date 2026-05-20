@@ -6,7 +6,15 @@ This application allows users to export playlists from their Spotify account. Pu
 
 The application is built in Typescript and is currently hosted on AWS. You can also clone this repository and run it from there; see the 'How to' section on this page. 
 
-# Roadmap
+# Roadmap new
+- Get it working again locally: disable cap of 10 playlists and actually export all playlists. 
+- Revisit architecture: from aws container to ?Lamda? something else? 
+- Make it React
+- Setup a convenient pipeline
+- Create provisioning with terraform
+- Store sessions/users
+
+# Roadmap OLD
 - After refresh/redirect: scroll down to page with download, or move progress logs up.
 - Add a visual loader: progress for download.
 - Allow selection of 'own playlists only' vs. 'subscribed playlists too'. 
@@ -41,7 +49,14 @@ You'll need to create a spotify app which you can create on [https://developer.s
 localSpotifyAppClientId: "INSERT_CLIENT_ID"
 localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
 ```
-- `npm run dev` to start up local server on [localhost:8000](localhost:8000). From there, you can initiate the export. 
+- Set up HTTPS for localhost using [mkcert](https://github.com/FiloSottile/mkcert) (required by Spotify's OAuth redirect URI policy):
+```bash
+brew install mkcert
+mkcert -install        # installs a local CA — requires your system password, run in a terminal
+mkcert localhost       # generates localhost.pem and localhost-key.pem in the project root
+```
+- Add `https://localhost:8000/spotify-app-callback` to the allowed redirect URIs in your Spotify app on [developer.spotify.com](https://developer.spotify.com/dashboard).
+- `npm run dev` to start up local server on [https://localhost:8000](https://localhost:8000). From there, you can initiate the export. Go to [https://dev.spotifyexport.com:8000](https://dev.spotifyexport.com:8000) to view ui. 
 
 ## Build
 - `npm run build`. For some reason, this could give `Missing script: "build"`. In that case, copy-pasta the script.
@@ -55,6 +70,7 @@ localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
 - Support .csv file format, escape `,` in e.g. track names.
 - Added a timeout for playlists with > 50 items to adhere to the rate limiting enforced by Spotify.
 - After login redirect, the windows scrolls to the loadingmessages / progress messages.
+- Fixed local development login flow that was broken because Spotify's OAuth rejects localhost as a redirect URI by pointing to dev.spotifyexport.com at 127.0.0.1 via a DNS A record to allow the app to run locally with a mkcert certificate. 
 
 # Troubleshooting
-- During auth/login to spotify: redirect isn't working: Solution: add `http://localhost:8000/spotify-app` to the allowed redirect URI's on developer.spotify.com.
+- During auth/login to spotify: `redirect_uri: Insecure` error: Spotify requires HTTPS for all redirect URIs. Make sure you've completed the mkcert setup above and added `https://localhost:8000/spotify-app-callback` to your Spotify app's allowed redirect URIs.

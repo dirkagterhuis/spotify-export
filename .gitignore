@@ -1,4 +1,7 @@
+.vscode/
 node_modules
+# Local ertificate files
+*.pem
 .elasticbeanstalk/
 local.yml
 playlists.json
