@@ -53,7 +53,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 
 ## Implementation steps
 1. Introduce VItest
-2. Introduce ZOD and add types
+2. Introduce ZOD and add types, add type check as commit hook
 3. Set up React app (Vite + TypeScript), replace current HTML/EJS frontend, but perhaps still use webpack
 4. Move Spotify API calls (playlists, tracks) to client-side fetch calls
 5. Set up terraform

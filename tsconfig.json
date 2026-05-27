@@ -2,7 +2,8 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "lib": ["ES2021.String"],
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": ["vitest/globals"]
   },
   "target": "esnext",
   "module": "esnext"
