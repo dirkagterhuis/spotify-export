@@ -52,16 +52,16 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 - **GitHub Actions** for CI/CD: lint/test/build → deploy frontend to Pages, deploy infra via Terraform.
 
 ## Implementation steps
-1. Set up React app (Vite + TypeScript), replace current HTML/EJS frontend
-2. Move Spotify API calls (playlists, tracks) to client-side fetch calls
-3. Create Lambda function for OAuth token exchange + user upsert
-4. Set up DynamoDB tables (Users, Exports)
-5. Wire up API Gateway in front of Lambda
-6. Provision infrastructure with Terraform
-7. Set up GitHub Actions pipeline
-8. Migrate DNS / update Spotify app redirect URIs
-9. Add unit tests
-10. Add types everywhere
+1. Introduce VItest
+2. Introduce ZOD and add types
+3. Set up React app (Vite + TypeScript), replace current HTML/EJS frontend, but perhaps still use webpack
+4. Move Spotify API calls (playlists, tracks) to client-side fetch calls
+5. Set up terraform
+6. Set up GitHub Actions pipeline
+7. Set up DynamoDB tables (Users, Exports)
+8. Create Lambda function for OAuth token exchange + user upsert
+9. Wire up API Gateway in front of Lambda
+10. Migrate DNS / update Spotify app redirect URIs
 11. Add versioning and versions based on commit messages.
 12. configure webpack to include the html files in `./dist` instead of copying them over in the `npm run build` script.
 
