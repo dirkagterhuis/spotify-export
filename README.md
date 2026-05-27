@@ -6,33 +6,72 @@ This application allows users to export playlists from their Spotify account. Pu
 
 The application is built in Typescript and is currently hosted on AWS. You can also clone this repository and run it from there; see the 'How to' section on this page. 
 
-# Roadmap new
-- Get it working again locally: disable cap of 10 playlists and actually export all playlists. 
-- Revisit architecture: from aws container to ?Lamda? something else? 
-- Make it React
-- Setup a convenient pipeline
-- Create provisioning with terraform
-- Store sessions/users
+# Architecture plan
 
-# Roadmap OLD
-- After refresh/redirect: scroll down to page with download, or move progress logs up.
-- Add a visual loader: progress for download.
-- Allow selection of 'own playlists only' vs. 'subscribed playlists too'. 
-- Allow selection of which fields to be retrieved.
-- Allow uploading of playlists to a Spotify account. 
-- Possibly show the served .json or .csv as a textbox, not as a file to download, so the user can copy it.
-- Use tooltips to explain abbout filetypes.
-- After pressing the button, the user is always authenticated. Might not always be necessary for an active session.
-- Improve error handling to user: use `sendLoadingMessageToClient()` or use error page.
+Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-driven architecture (~€0/mo).
 
-# Technical improvements
-- Clean up `index.ts` and implement proper routing for api routes and socket.io, e.g. [example](https://stackoverflow.com/questions/59681974/how-to-organize-routes-in-nodejs-express-app) or [for socket.io](https://stackoverflow.com/questions/20466129/how-to-organize-socket-handling-in-node-js-and-socket-io-app). 
-- Track traffic.
-- Add types everywhere. 
-- Add unit tests everywhere.
-- Add versioning and versions based on commit messages.
-- configure webpack to include the html files in `./dist` instead of copying them over in the `npm run build` script.
-- Use proper session management with e.g. Redis or node-cache to store active sessions.Pro: get session id in every express request, and more secure. Con: will have to use cookies? More info [here](https://www.section.io/engineering-education/session-management-in-nodejs-using-expressjs-and-express-session/) and [here](https://stackoverflow.com/questions/25532692/how-to-share-sessions-with-socket-io-1-x-and-express-4-x).
+## Target architecture
+```
+┌─────────────────────────────────────┐
+│  GitHub Pages                       │
+│  React SPA (static)                 │
+│  - Calls Spotify API directly       │
+│  - Progress updates via React state │
+└──────────┬──────────────────────────┘
+           │ HTTPS
+┌──────────▼──────────────────────────┐
+│  API Gateway + Lambda               │
+│                                     │
+│  POST /auth/token                   │
+│    → exchange OAuth code for token  │
+│    → upsert user in DynamoDB        │
+│                                     │
+│  POST /exports                      │
+│    → log export event (timestamp,   │
+│      playlist count, format, etc.)  │
+│                                     │
+│  GET  /users/:id/exports            │
+│    → export history for a user      │
+└──────────┬──────────────────────────┘
+           │
+┌──────────▼──────────────────────────┐
+│  DynamoDB (on-demand)               │
+│  - Users table (spotify ID, email,  │
+│    display name, first/last seen)   │
+│  - Exports table (user ID, date,    │
+│    playlist count, format)          │
+└─────────────────────────────────────┘
+```
+
+## Key design decisions
+- **Browser calls Spotify API directly** using the user's OAuth token — no server timeout concerns, no Socket.io needed. The only server-side call is the OAuth token exchange (requires client_secret).
+- **React SPA** replaces the current HTML/EJS + Socket.io frontend. Progress updates are just React state.
+- **DynamoDB on-demand** for user/session tracking. Free tier covers 25GB storage + 25 WCU/RCU.
+- **GitHub Pages** for hosting the static frontend (CNAME already set up for spotifyexport.com).
+- **Terraform** to provision API Gateway, Lambda, and DynamoDB.
+- **GitHub Actions** for CI/CD: lint/test/build → deploy frontend to Pages, deploy infra via Terraform.
+
+## Implementation steps
+1. Set up React app (Vite + TypeScript), replace current HTML/EJS frontend
+2. Move Spotify API calls (playlists, tracks) to client-side fetch calls
+3. Create Lambda function for OAuth token exchange + user upsert
+4. Set up DynamoDB tables (Users, Exports)
+5. Wire up API Gateway in front of Lambda
+6. Provision infrastructure with Terraform
+7. Set up GitHub Actions pipeline
+8. Migrate DNS / update Spotify app redirect URIs
+9. Add unit tests
+10. Add types everywhere
+11. Add versioning and versions based on commit messages.
+12. configure webpack to include the html files in `./dist` instead of copying them over in the `npm run build` script.
+
+## Future features (after architecture migration)
+- Allow selection of 'own playlists only' vs. 'subscribed playlists too'
+- Allow selection of which fields to be retrieved
+- Allow uploading of playlists to a Spotify account
+- Visual progress bar for export
+- Track traffic
+- Add tooltips to explain json and csv file types
 
 # Known issues
 - If you click the button again after retrieving playlists, you get an error.
