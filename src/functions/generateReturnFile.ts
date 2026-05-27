@@ -13,7 +13,7 @@ export function generateReturnFile(playlists, fileType: FileType): string {
     }
 }
 
-function csvFromJSON(playlists): string {
+export function csvFromJSON(playlists): string {
     const headers: string[] = [
         'playlist id',
         'playlist Name',
@@ -73,7 +73,7 @@ function csvFromJSON(playlists): string {
 }
 
 // Escape comma's in .csv by placing all elements in double quotes and escaping double quotes with an extra double quote.
-function handleCommas(input: string[]): void {
+export function handleCommas(input: string[]): void {
     for (let i = 0; i < input.length; i++) {
         // But only if it contains a comma
         if (input[i].indexOf(',') > -1) {
