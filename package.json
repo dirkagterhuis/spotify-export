@@ -30,11 +30,10 @@
     "@typescript-eslint/eslint-plugin": "^8.60.0",
     "@typescript-eslint/parser": "^8.60.0",
     "@vitest/coverage-istanbul": "^4.1.7",
-    "aws-sdk": "^2.1693.0",
     "eslint": "^10.4.0",
     "lefthook": "^2.1.8",
     "lint-staged": "^17.0.5",
-    "nodemon": "^2.0.15",
+    "nodemon": "^3.1.14",
     "prettier": "^3.8.3",
     "ts-node": "^10.4.0",
     "vitest": "^4.1.7"
