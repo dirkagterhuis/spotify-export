@@ -11,17 +11,25 @@ export const TrackSchema = z.object({
 })
 export const PlaylistItemSchema = z.object({ track: TrackSchema.nullable() })
 export const OwnerSchema = z.object({ display_name: z.string(), type: z.string() })
-export const PlaylistSchema = z.object({
+
+// Shape Spotify actually returns in the playlist list response — no track items yet
+const SpotifyPlaylistSchema = z.object({
     id: z.string(),
     name: z.string(),
     owner: OwnerSchema,
     collaborative: z.boolean(),
     href: z.string(),
     description: z.string(),
+})
+
+// Our internal type — extends the API shape with items we fetch separately
+export const PlaylistSchema = SpotifyPlaylistSchema.extend({
     items: z.array(PlaylistItemSchema).optional(),
 })
+
+// Used to parse the paginated playlist list response from Spotify
 export const PlaylistPageSchema = z.object({
-    items: z.array(PlaylistSchema),
+    items: z.array(SpotifyPlaylistSchema),
     total: z.number(),
     next: z.string().nullable(),
 })
