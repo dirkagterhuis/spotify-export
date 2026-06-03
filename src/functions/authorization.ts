@@ -18,7 +18,7 @@ export function login(client: Client): string {
         'https://accounts.spotify.com/authorize?' +
         new URLSearchParams({
             response_type: 'code',
-            client_id: config.spotifyClientId,
+            client_id: config.spotifyClientId ?? '',
             scope: 'playlist-read-private',
             redirect_uri: redirect_uri,
             state: client.state,

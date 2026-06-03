@@ -69,7 +69,7 @@ describe('getItemsByPlaylists', () => {
         const playlists = [{ ...mockPlaylist }]
         await getItemsByPlaylists(token, playlists, vi.fn(), 'sock1')
         expect(playlists[0].items).toHaveLength(1)
-        expect(playlists[0].items[0].track.name).toBe('Song One')
+        expect(playlists[0].items![0].track!.name).toBe('Song One')
     })
 
     it('sends a progress message per playlist', async () => {
@@ -77,10 +77,7 @@ describe('getItemsByPlaylists', () => {
             status: 200,
             data: { items: [], total: 0, next: null },
         })
-        const playlists = [
-            { ...mockPlaylist },
-            { ...mockPlaylist, id: 'pl2', name: 'Playlist 2' },
-        ]
+        const playlists = [{ ...mockPlaylist }, { ...mockPlaylist, id: 'pl2', name: 'Playlist 2' }]
         const sendMessage = vi.fn()
         await getItemsByPlaylists(token, playlists, sendMessage, 'sock1')
         expect(sendMessage).toHaveBeenCalledTimes(2)

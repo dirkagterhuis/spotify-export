@@ -1,6 +1,6 @@
 import { handleCommas, csvFromJSON, generateReturnFile } from './generateReturnFile'
 import type { FileType } from '../types'
-import { mockPlaylist } from '../__test__/fixtures'
+import { mockPlaylist, mockTrack } from '../__test__/fixtures'
 
 describe('handleCommas', () => {
     it('wraps values containing commas in double quotes', () => {
@@ -26,7 +26,7 @@ describe('handleCommas', () => {
 
 describe('csvFromJSON', () => {
     it('returns only the header row when playlist has no items', () => {
-        const result = csvFromJSON([{ ...mockPlaylist, items: null }])
+        const result = csvFromJSON([{ ...mockPlaylist, items: undefined }])
         const lines = result.split('\n')
         expect(lines).toHaveLength(1)
         expect(lines[0]).toContain('playlist id')
@@ -51,7 +51,7 @@ describe('csvFromJSON', () => {
             items: [
                 {
                     track: {
-                        ...mockPlaylist.items[0].track,
+                        ...mockTrack,
                         artists: [{ name: 'Artist A' }, { name: 'Artist B' }],
                     },
                 },

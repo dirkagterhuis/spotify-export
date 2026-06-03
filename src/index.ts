@@ -63,17 +63,18 @@ app.get('/spotify-app-callback', async function (req, res) {
     // In order to remove the code from the url.
     res.redirect('/')
 
-    const code: string = (req.query.code as string) || null
+    const code = (req.query.code as string) || null
     const state = (req.query.state as string) || null
 
-    const authToken = await getAuthToken(code)
+    const authToken = await getAuthToken(code ?? '')
 
     // Ideally, you'd also get the sessionId in the callback and get the client.state from there (not possible),
     // or redirect to a new page and get the session id. But, then the user would have to click again -> use State to match.
     const client = clients.find((client) => {
         return client.state === state
     })
-    validateState(client, state, sendLoadingMessageToClient)
+    validateState(client!, state ?? '', sendLoadingMessageToClient)
+    if (!client) return
     sendLoadingMessageToClient(client.socketId, `Succesfully signed in to your Spotify Account`)
 
     const playlists = await getPlaylists(authToken, 'https://api.spotify.com/v1/me/playlists', [])
@@ -88,8 +89,8 @@ app.get('/spotify-app-callback', async function (req, res) {
         fs.writeFileSync('../playlists.json', JSON.stringify(playlists, null, 2))
     }
     io.to(client.socketId).emit('readyForDownload', {
-        body: generateReturnFile(playlists, client.fileType),
-        fileType: client.fileType,
+        body: generateReturnFile(playlists, client.fileType ?? 'json'),
+        fileType: client.fileType ?? 'json',
     })
 })
 
