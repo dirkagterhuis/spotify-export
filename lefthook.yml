@@ -1,0 +1,14 @@
+commit-msg:
+  commands:
+    lint-commit-msg:
+      run: npx --no-install commitlint --edit ./.git/COMMIT_EDITMSG
+
+pre-commit:
+  parallel: true
+  commands:
+    lint-staged:
+      run: npx --no-install lint-staged -v
+    check-types:
+      files: git diff --name-only HEAD
+      glob: '*.{ts}'
+      run: npm run check:types

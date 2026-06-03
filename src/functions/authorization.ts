@@ -1,5 +1,6 @@
 // Uses Spotify OAuth flow for web apps: https://developer.spotify.com/documentation/general/guides/authorization/code-flow/.
 import type { Client } from '../types'
+import { AuthTokenResponseSchema } from '../types'
 import { config } from '../../config'
 
 import axios from 'axios'
@@ -25,7 +26,7 @@ export function login(client: Client): string {
     return loginUrl
 }
 
-export async function getAuthToken(code: string) {
+export async function getAuthToken(code: string): Promise<string> {
     const requestBody = new URLSearchParams({
         code,
         redirect_uri: redirect_uri,
@@ -33,11 +34,10 @@ export async function getAuthToken(code: string) {
     })
 
     try {
-        const getTokenResponse = await axios.post(
+        const response = await axios.post(
             'https://accounts.spotify.com/api/token',
             requestBody.toString(),
             {
-                method: 'post',
                 headers: {
                     Authorization:
                         'Basic ' +
@@ -45,22 +45,24 @@ export async function getAuthToken(code: string) {
                             config.spotifyClientId + ':' + config.spotifyClientSecret
                         ).toString('base64'),
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Origin': config.baseUrl
+                    Origin: config.baseUrl,
                 },
             }
         )
-        if (getTokenResponse.status === 200) {
-            const data = getTokenResponse.data
-            console.log('token: ' + JSON.stringify(data))
-            return data.access_token
-        }
+        const data = AuthTokenResponseSchema.parse(response.data)
+        console.log('token: ' + JSON.stringify(data))
+        return data.access_token
     } catch (error) {
         console.log(`Error: ${JSON.stringify(error.message)}`)
         throw new Error(error)
     }
 }
 
-export function validateState(client: Client, state: string, sendLoadingMessageToClient: Function) {
+export function validateState(
+    client: Client,
+    state: string,
+    sendLoadingMessageToClient: (socketId: string, message: string) => void
+): void {
     if (!client) {
         const errorMessage: string = `Error(state_mismatch): no active client found with received state`
         console.log(errorMessage)

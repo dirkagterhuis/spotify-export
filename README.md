@@ -52,18 +52,21 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 - **GitHub Actions** for CI/CD: lint/test/build → deploy frontend to Pages, deploy infra via Terraform.
 
 ## Implementation steps
-1. Introduce VItest
+1. [x] Introduce VItest
 2. Introduce ZOD and add types, add type check as commit hook
-3. Set up React app (Vite + TypeScript), replace current HTML/EJS frontend, but perhaps still use webpack
-4. Move Spotify API calls (playlists, tracks) to client-side fetch calls
-5. Set up terraform
-6. Set up GitHub Actions pipeline
-7. Set up DynamoDB tables (Users, Exports)
-8. Create Lambda function for OAuth token exchange + user upsert
-9. Wire up API Gateway in front of Lambda
-10. Migrate DNS / update Spotify app redirect URIs
-11. Add versioning and versions based on commit messages.
-12. configure webpack to include the html files in `./dist` instead of copying them over in the `npm run build` script.
+   1. review plan and continue
+   2. set es lint warn to error (remove it) and add types everywhere. 
+3. Make linting rules more strict
+4. Set up React app (Vite + TypeScript), replace current HTML/EJS frontend, but perhaps still use webpack
+5. Move Spotify API calls (playlists, tracks) to client-side fetch calls
+6. Set up terraform
+7. Set up GitHub Actions pipeline
+8. Set up DynamoDB tables (Users, Exports)
+9. Create Lambda function for OAuth token exchange + user upsert
+10. Wire up API Gateway in front of Lambda
+11. Migrate DNS / update Spotify app redirect URIs
+12. Add versioning and versions based on commit messages.
+13. configure webpack to include the html files in `./dist` instead of copying them over in the `npm run build` script.
 
 ## Future features (after architecture migration)
 - Allow selection of 'own playlists only' vs. 'subscribed playlists too'

@@ -1,6 +1,6 @@
-import type { Client } from '../types'
+import type { Client, Playlist, PlaylistItem, Track } from '../types'
 
-export const mockTrack = {
+export const mockTrack: Track = {
     id: 'tr1',
     name: 'Song One',
     artists: [{ name: 'Artist A' }],
@@ -8,9 +8,9 @@ export const mockTrack = {
     href: 'https://example.com/tr1',
 }
 
-export const mockPlaylistItem = { track: mockTrack }
+export const mockPlaylistItem: PlaylistItem = { track: mockTrack }
 
-export const mockPlaylist = {
+export const mockPlaylist: Playlist = {
     id: 'pl1',
     name: 'My Playlist',
     owner: { display_name: 'Alice', type: 'user' },

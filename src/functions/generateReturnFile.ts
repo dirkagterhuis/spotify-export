@@ -1,6 +1,6 @@
-import type { FileType } from '../types'
+import type { FileType, Playlist } from '../types'
 
-export function generateReturnFile(playlists, fileType: FileType): string {
+export function generateReturnFile(playlists: Playlist[], fileType: FileType): string {
     switch (fileType) {
         case 'json':
             return `data:text/json;charset=utf-8, ${encodeURIComponent(
@@ -13,7 +13,7 @@ export function generateReturnFile(playlists, fileType: FileType): string {
     }
 }
 
-export function csvFromJSON(playlists): string {
+export function csvFromJSON(playlists: Playlist[]): string {
     const headers: string[] = [
         'playlist id',
         'playlist Name',
@@ -33,7 +33,6 @@ export function csvFromJSON(playlists): string {
         const playlist = playlists[i]
         const items = playlist.items
 
-        // In dev, not all playlists have items because not all tracks are retrieved for all playlists.
         if (!items) {
             continue
         }
@@ -45,7 +44,7 @@ export function csvFromJSON(playlists): string {
             const artists = track.artists
             let artistNames: string = ''
             for (let k = 0; k < artists.length; k++) {
-                artistNames += artists[k].name as string
+                artistNames += artists[k].name
                 if (k !== artists.length - 1) {
                     artistNames += ', '
                 }
@@ -75,9 +74,8 @@ export function csvFromJSON(playlists): string {
 // Escape comma's in .csv by placing all elements in double quotes and escaping double quotes with an extra double quote.
 export function handleCommas(input: string[]): void {
     for (let i = 0; i < input.length; i++) {
-        // But only if it contains a comma
         if (input[i].indexOf(',') > -1) {
-            input[i] = `"${input[i].replaceAll('"', "\"")}"`
+            input[i] = `"${input[i].replaceAll('"', '"')}"`
         }
     }
 }
