@@ -25,10 +25,12 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
+    "@types/ejs": "^3.1.5",
+    "@types/js-yaml": "^4.0.9",
     "@typescript-eslint/eslint-plugin": "^8.60.0",
     "@typescript-eslint/parser": "^8.60.0",
     "@vitest/coverage-istanbul": "^4.1.7",
-    "aws-sdk": "^1.18.0",
+    "aws-sdk": "^2.1693.0",
     "eslint": "^10.4.0",
     "lefthook": "^2.1.8",
     "lint-staged": "^17.0.5",
