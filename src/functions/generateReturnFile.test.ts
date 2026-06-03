@@ -1,4 +1,5 @@
 import { handleCommas, csvFromJSON, generateReturnFile } from './generateReturnFile'
+import type { FileType } from '../types'
 import { mockPlaylist } from '../__test__/fixtures'
 
 describe('handleCommas', () => {
@@ -73,6 +74,8 @@ describe('generateReturnFile', () => {
     })
 
     it('throws for an unrecognised fileType', () => {
-        expect(() => generateReturnFile([], 'xml' as any)).toThrow('Unexpected fileType')
+        expect(() => generateReturnFile([], 'xml' as unknown as FileType)).toThrow(
+            'Unexpected fileType'
+        )
     })
 })
