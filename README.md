@@ -12,61 +12,73 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 
 ## Target architecture
 ```
-┌─────────────────────────────────────┐
-│  GitHub Pages                       │
-│  React SPA (static)                 │
-│  - Calls Spotify API directly       │
-│  - Progress updates via React state │
-└──────────┬──────────────────────────┘
-           │ HTTPS
-┌──────────▼──────────────────────────┐
-│  API Gateway + Lambda               │
-│                                     │
-│  POST /auth/token                   │
-│    → exchange OAuth code for token  │
-│    → upsert user in DynamoDB        │
-│                                     │
-│  POST /exports                      │
-│    → log export event (timestamp,   │
-│      playlist count, format, etc.)  │
-│                                     │
-│  GET  /users/:id/exports            │
-│    → export history for a user      │
-└──────────┬──────────────────────────┘
+┌────────────────────────────────────────────┐
+│  GitHub Pages — React SPA (static)          │
+│  - Runs OAuth Authorization Code + PKCE     │
+│    directly with Spotify (no client_secret) │
+│  - Calls Spotify API directly for           │
+│    playlists + tracks                       │
+│  - Progress updates via React state         │
+└──────────┬───────────────────────────────────┘
+           │ HTTPS (optional analytics only)
+┌──────────▼───────────────────────────────────┐
+│  API Gateway + Lambda                        │
+│                                              │
+│  POST /exports                               │
+│    → log export event (timestamp,            │
+│      playlist count, format)                 │
+│                                              │
+│  GET  /users/:id/exports                     │
+│    → export history for an anonymous user    │
+└──────────┬───────────────────────────────────┘
            │
-┌──────────▼──────────────────────────┐
-│  DynamoDB (on-demand)               │
-│  - Users table (spotify ID, email,  │
-│    display name, first/last seen)   │
-│  - Exports table (user ID, date,    │
-│    playlist count, format)          │
-└─────────────────────────────────────┘
+┌──────────▼───────────────────────────────────┐
+│  DynamoDB (on-demand) — no PII               │
+│  - Exports table: anonymous user id          │
+│    (hashed Spotify id), date, playlist       │
+│    count, format                             │
+└────────────────────────────────────────────────┘
 ```
 
+> The auth path has **zero infrastructure**: PKCE lets the browser complete the OAuth flow with no `client_secret`, so there is nothing server-side to secure. The Lambda / API Gateway / DynamoDB tier exists purely for optional export analytics.
+
 ## Key design decisions
-- **Browser calls Spotify API directly** using the user's OAuth token — no server timeout concerns, no Socket.io needed. The only server-side call is the OAuth token exchange (requires client_secret).
-- **React SPA** replaces the current HTML/EJS + Socket.io frontend. Progress updates are just React state.
-- **DynamoDB on-demand** for user/session tracking. Free tier covers 25GB storage + 25 WCU/RCU.
-- **GitHub Pages** for hosting the static frontend (CNAME already set up for spotifyexport.com).
+- **OAuth Authorization Code + PKCE, fully in the browser.** PKCE replaces the static `client_secret` with a per-login proof (a random `code_verifier`; only its SHA-256 hash, the `code_challenge`, is sent to Spotify). This means no secret has to live anywhere and the entire auth flow — including the token exchange — runs client-side. No auth server, no Socket.io.
+- **Browser calls Spotify API directly** using the user's access token — no server timeout concerns. The access token lasts ~1h, which covers a one-shot export, so no refresh token is stored in the browser.
+- **React SPA (Vite + TypeScript)** replaces the current HTML/EJS + Socket.io frontend. Progress updates are just React state.
+- **No PII stored.** The optional analytics tier keys exports by a *hashed* Spotify id only — no email, no display name. Store as little as possible.
+- **DynamoDB on-demand** for the export-event analytics. Free tier covers 25GB storage + 25 WCU/RCU.
+- **GitHub Pages** for hosting the static frontend (CNAME already set up for spotifyexport.com). Client-side routing uses a `404.html` fallback.
 - **Terraform** to provision API Gateway, Lambda, and DynamoDB.
 - **GitHub Actions** for CI/CD: lint/test/build → deploy frontend to Pages, deploy infra via Terraform.
 
 ## Implementation steps
 1. [x] Introduce VItest
-2. Introduce ZOD and add types, add type check as commit hook
-   1. review plan and continue
-   2. set es lint warn to error (remove it) and add types everywhere. 
-3. Make linting rules more strict
-4. Set up React app (Vite + TypeScript), replace current HTML/EJS frontend, but perhaps still use webpack
-5. Move Spotify API calls (playlists, tracks) to client-side fetch calls
-6. Set up terraform
-7. Set up GitHub Actions pipeline
-8. Set up DynamoDB tables (Users, Exports)
-9. Create Lambda function for OAuth token exchange + user upsert
-10. Wire up API Gateway in front of Lambda
-11. Migrate DNS / update Spotify app redirect URIs
-12. Add versioning and versions based on commit messages.
-13. configure webpack to include the html files in `./dist` instead of copying them over in the `npm run build` script.
+2. [x] Introduce ZOD and add types, add type check as commit hook
+3. [x] Make linting rules more strict
+4. [ ] review plan again
+5. [ ] Add skills or agents
+### Phase A — Static SPA, client-side everything (this alone gets hosting to ~€0)
+6. Set up React app (Vite + TypeScript), replace the current HTML/EJS frontend. (Vite replaces webpack and the EJS-copy build step entirely.)
+   1. Yes, a React SPA runs fine on GitHub Pages — it's just static assets, with a `404.html` fallback for client-side routes.
+   2. Add cookie / privacy notice (lighter now: PKCE uses `sessionStorage`, not cookies, and analytics stores no PII).
+   3. Ui Spotify export: verhaal vertellen: you used to own your music, you might still own your CDs and mp3s or vinyl or records. .  But in 20 years, you might not have your playlists. Help yourself. En profi maken. Verwijziny naast GitHub en dirk en instr
+7. Implement Spotify auth in the browser via Authorization Code + PKCE (`crypto.subtle` for the challenge, `sessionStorage` for the verifier + state). Remove the server-side token exchange and `client_secret`.
+8. Move Spotify API calls (playlists, tracks) to client-side fetch calls.
+   1. While here, fix the two known issues: re-clicking the button after a finished export, and the HTML-entity escaping in CSVs (`&#x2F;` → `/`).
+9. Migrate DNS / update Spotify app redirect URIs; deploy the SPA to GitHub Pages.
+10. Set up GitHub Actions: lint / test / build → deploy frontend to Pages.
+
+### Phase B — Optional analytics backend (the AWS / Terraform / Lambda / DynamoDB learning)
+11. Set up Terraform.
+12. Set up DynamoDB Exports table (anonymous hashed Spotify id, date, playlist count, format — no PII).
+13. Create Lambda function to log export events + return history.
+    1. Use esbuild for bundling.
+14. Wire up API Gateway in front of Lambda (`POST /exports`, `GET /users/:id/exports`).
+15. Extend the GitHub Actions pipeline to `terraform apply` the infra.
+
+### Cross-cutting
+16. Add versioning based on commit messages.
 
 ## Future features (after architecture migration)
 - Allow selection of 'own playlists only' vs. 'subscribed playlists too'
