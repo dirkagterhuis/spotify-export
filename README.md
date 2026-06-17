@@ -56,8 +56,8 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 1. [x] Introduce VItest
 2. [x] Introduce ZOD and add types, add type check as commit hook
 3. [x] Make linting rules more strict
-4. [ ] review plan again
-5. [ ] Add skills or agents
+4. [x] review plan again
+5. [x] Add skills or agents
 ### Phase A — Static SPA, client-side everything (this alone gets hosting to ~€0)
 6. Set up React app (Vite + TypeScript), replace the current HTML/EJS frontend. (Vite replaces webpack and the EJS-copy build step entirely.)
    1. Yes, a React SPA runs fine on GitHub Pages — it's just static assets, with a `404.html` fallback for client-side routes.
