@@ -2,14 +2,17 @@
   "main": "dist/src/index.js",
   "scripts": {
     "build:": "npx tsc -p tsconfig.json && rm -rf ./dist/public && cp -R ./public ./dist/public",
-    "check:types": "tsc -p tsconfig.json --noEmit",
+    "check:types": "tsc -p tsconfig.json --noEmit && tsc -b web",
     "dev": "nodemon src/index.ts --ext .js,.ts,.html,.json",
     "format": "prettier --write .",
-    "lint": "eslint src/**/*.ts",
+    "lint": "eslint .",
     "start": "npx tsc && node dist/src/index.js",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "web:build": "tsc -b web && vite build web",
+    "web:dev": "vite web",
+    "web:preview": "vite preview web"
   },
   "dependencies": {
     "@types/express": "^4.17.13",
@@ -19,6 +22,8 @@
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "js-yaml": "^4.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "socket.io": "^4.4.0",
     "typescript": "^5.9.3",
     "zod": "^4.4.3"
@@ -26,21 +31,30 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/ejs": "^3.1.5",
     "@types/js-yaml": "^4.0.9",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@typescript-eslint/eslint-plugin": "^8.60.0",
     "@typescript-eslint/parser": "^8.60.0",
+    "@vitejs/plugin-react": "^6.1.1",
     "@vitest/coverage-istanbul": "^4.1.7",
     "eslint": "^10.4.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "jsdom": "^30.1.1",
     "lefthook": "^2.1.8",
     "lint-staged": "^17.0.5",
     "nodemon": "^3.1.14",
     "prettier": "^3.8.3",
     "ts-node": "^10.4.0",
+    "vite": "^8.3.0",
     "vitest": "^4.1.7"
   },
   "lint-staged": {
-    "*.ts": [
+    "*.{ts,tsx,mts}": [
       "prettier --write",
       "eslint --fix"
     ]

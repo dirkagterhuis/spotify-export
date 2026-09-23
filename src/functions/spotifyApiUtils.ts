@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { config } from '../../config'
-import { Playlist, PlaylistItem, PlaylistPageSchema, PlaylistItemPageSchema } from '../types'
+import type { Playlist, PlaylistItem } from '../types'
+import { PlaylistPageSchema, PlaylistItemPageSchema } from '../types'
 
 const rateLimitingTimeout: number = 100
 

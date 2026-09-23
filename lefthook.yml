@@ -10,5 +10,5 @@ pre-commit:
       run: npx --no-install lint-staged -v
     check-types:
       files: git diff --name-only HEAD
-      glob: '*.{ts}'
+      glob: '*.{ts,tsx,mts}'
       run: npm run check:types

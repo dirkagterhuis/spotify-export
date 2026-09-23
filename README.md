@@ -59,10 +59,19 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 4. [x] review plan again
 5. [x] Add skills or agents
 ### Phase A — Static SPA, client-side everything (this alone gets hosting to ~€0)
-6. Set up React app (Vite + TypeScript), replace the current HTML/EJS frontend. (Vite replaces webpack and the EJS-copy build step entirely.)
-   1. Yes, a React SPA runs fine on GitHub Pages — it's just static assets, with a `404.html` fallback for client-side routes.
-   2. Add cookie / privacy notice (lighter now: PKCE uses `sessionStorage`, not cookies, and analytics stores no PII).
-   3. Ui Spotify export: verhaal vertellen: you used to own your music, you might still own your CDs and mp3s or vinyl or records. .  But in 20 years, you might not have your playlists. Help yourself. En profi maken. Verwijziny naast GitHub en dirk en instr
+6. Set up React app (Vite + TypeScript) in `web/`, replace the current HTML/EJS frontend. (Vite replaces the `tsc` + copy-`public/` build step.) The Express app keeps working until step 8, since the SPA can't export until PKCE (7) and client-side fetch (8) land.
+   - Notes:
+     - Yes, a React SPA runs fine on GitHub Pages — it's just static assets, with a `404.html` fallback for client-side routes.
+     - Cookie / privacy notice is lighter now: PKCE uses `sessionStorage`, not cookies. Note that a hashed Spotify id (Phase B) is still pseudonymous personal data under GDPR.
+     - Ui Spotify export: verhaal vertellen: you used to own your music, you might still own your CDs and mp3s or vinyl or records. .  But in 20 years, you might not have your playlists. Help yourself. En profi maken. Verwijziny naast GitHub en dirk en instr
+   - [x] 6a. Tooling: Vite + React + TS in `web/`, tsconfig split, ESLint (react-hooks), Vitest projects (node + jsdom), smoke test.
+   - [ ] 6b. Layout as components: `Layout`, `Header`, `Footer`, pages; port `styles.css`, drop jQuery/Bootstrap.
+   - [ ] 6c. Routing: React Router (`/`, `/about`, `/privacy`, `*`) + `404.html` fallback for GitHub Pages.
+   - [ ] 6d. File-type picker: controlled radio group, lifted state, `useSessionStorage` hook; button disabled while exporting.
+   - [ ] 6e. Progress log: list rendering, auto-scroll via `useRef`, export status as a union type, driven by a fake export.
+   - [ ] 6f. Privacy notice: `/privacy` page + dismissible banner.
+   - [ ] 6g. Story & polish: hero, "why" narrative, how-it-works, footer links (GitHub, author, run-locally instructions), favicon.
+   - [ ] 6h. Update README dev instructions.
 7. Implement Spotify auth in the browser via Authorization Code + PKCE (`crypto.subtle` for the challenge, `sessionStorage` for the verifier + state). Remove the server-side token exchange and `client_secret`.
 8. Move Spotify API calls (playlists, tracks) to client-side fetch calls.
    1. While here, fix the two known issues: re-clicking the button after a finished export, and the HTML-entity escaping in CSVs (`&#x2F;` → `/`).

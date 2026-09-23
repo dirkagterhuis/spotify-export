@@ -10,5 +10,6 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "types": ["vitest/globals"]
-  }
+  },
+  "exclude": ["web", "dist", "coverage", "node_modules"]
 }

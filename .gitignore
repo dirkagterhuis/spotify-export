@@ -6,6 +6,7 @@ node_modules
 local.yml
 playlists.json
 coverage/
+web/dist/
 .elasticbeanstalk/
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

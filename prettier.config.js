@@ -4,7 +4,6 @@ module.exports = {
     semi: false,
     trailingComma: 'es5',
     bracketSpacing: true,
-    parser: 'typescript',
     singleQuote: true,
     proseWrap: 'never',
     overrides: [
