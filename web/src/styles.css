@@ -1,0 +1,54 @@
+body {
+    color: #333333;
+    font-family: arial;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+/* React renders into #root, so the sticky-footer column lives here instead of on <body>. */
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex-grow: 1;
+    margin: auto;
+    padding: 0 50px;
+}
+
+header {
+    margin-top: 16px;
+    margin-bottom: 48px;
+    text-align: center;
+}
+
+header a {
+    color: #888888;
+    text-decoration: none;
+}
+
+footer {
+    color: #888888;
+    border-top: 1px solid #eeeeee;
+    margin-top: 16px;
+    padding: 16px 0;
+    text-align: center;
+}
+
+h1 {
+    font-size: min(10vw, 70px);
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+}
+
+.centre {
+    display: flex;
+    justify-content: center;
+}

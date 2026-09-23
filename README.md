@@ -65,8 +65,8 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
      - Cookie / privacy notice is lighter now: PKCE uses `sessionStorage`, not cookies. Note that a hashed Spotify id (Phase B) is still pseudonymous personal data under GDPR.
      - Ui Spotify export: verhaal vertellen: you used to own your music, you might still own your CDs and mp3s or vinyl or records. .  But in 20 years, you might not have your playlists. Help yourself. En profi maken. Verwijziny naast GitHub en dirk en instr
    - [x] 6a. Tooling: Vite + React + TS in `web/`, tsconfig split, ESLint (react-hooks), Vitest projects (node + jsdom), smoke test.
-   - [ ] 6b. Layout as components: `Layout`, `Header`, `Footer`, pages; port `styles.css`, drop jQuery/Bootstrap.
-   - [ ] 6c. Routing: React Router (`/`, `/about`, `/privacy`, `*`) + `404.html` fallback for GitHub Pages.
+   - [x] 6b. Layout as components: `Layout`, `Header`, `Footer`, `Section`, `HomePage`; port `styles.css` (no jQuery/Bootstrap).
+   - [ ] 6c. Routing: React Router + `AboutPage`, `NotFoundPage` (`/`, `/about`, `*`) + `404.html` fallback for GitHub Pages. `/privacy` follows in 6f.
    - [ ] 6d. File-type picker: controlled radio group, lifted state, `useSessionStorage` hook; button disabled while exporting.
    - [ ] 6e. Progress log: list rendering, auto-scroll via `useRef`, export status as a union type, driven by a fake export.
    - [ ] 6f. Privacy notice: `/privacy` page + dismissible banner.

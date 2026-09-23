@@ -1,8 +1,10 @@
+import { Layout } from './components/Layout'
+import { HomePage } from './pages/HomePage'
+
 export function App() {
     return (
-        <main>
-            <h1>spotifyexport.com</h1>
-            <p>The React app is up and running.</p>
-        </main>
+        <Layout>
+            <HomePage />
+        </Layout>
     )
 }
