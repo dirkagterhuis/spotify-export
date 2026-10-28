@@ -57,3 +57,35 @@ h2 {
     display: flex;
     justify-content: center;
 }
+
+/* A fieldset groups the radio buttons for screen readers; drop its default box. */
+.file-type-picker {
+    border: none;
+    margin: 0 0 30px;
+    padding: 0;
+}
+
+.file-type-picker legend {
+    margin-bottom: 16px;
+    padding: 0;
+}
+
+.file-type-picker label {
+    margin: 0 8px;
+}
+
+.spotify-button {
+    background: #1db954;
+    border: 1px solid transparent;
+    border-radius: 50px;
+    color: #ffffff;
+    cursor: pointer;
+    height: 35px;
+    padding: 0 3px;
+    width: 150px;
+}
+
+.spotify-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}

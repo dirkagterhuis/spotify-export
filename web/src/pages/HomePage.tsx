@@ -1,6 +1,27 @@
+import { useState } from 'react'
+import { ExportForm } from '../components/ExportForm'
 import { Section } from '../components/Section'
+import { fakeExport } from '../fakeExport'
+import { FileTypeSchema } from '../fileType'
+import { useSessionStorage } from '../hooks/useSessionStorage'
 
-export function HomePage() {
+type HomePageProps = {
+    exportPlaylists?: typeof fakeExport
+}
+
+export function HomePage({ exportPlaylists = fakeExport }: HomePageProps) {
+    // State is lifted up to the page: the picker and the button both depend on it, and the progress
+    // log (6e) will too. Same storage key as the old frontend, so the choice survives the login redirect.
+    const [fileType, setFileType] = useSessionStorage('selectedFileType', FileTypeSchema, 'json')
+    const [isExporting, setIsExporting] = useState(false)
+
+    function handleExport() {
+        setIsExporting(true)
+        // Event handlers can't await; `finally` re-enables the form whether the export succeeds or not.
+        // Error handling lands with the export status union type in 6e.
+        void exportPlaylists(fileType).finally(() => setIsExporting(false))
+    }
+
     return (
         <>
             <p className="centre">
@@ -35,6 +56,14 @@ export function HomePage() {
                     No data is stored anywhere but on your browser, and nothing is tracked. Although
                     this app only retrieves data from your Spotify account, use it at your own risk.
                 </p>
+            </Section>
+            <Section title="Let's get started!">
+                <ExportForm
+                    fileType={fileType}
+                    onFileTypeChange={setFileType}
+                    isExporting={isExporting}
+                    onExport={handleExport}
+                />
             </Section>
         </>
     )

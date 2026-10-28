@@ -1,0 +1,3 @@
+# Always check out text files with LF line endings, also on Windows (where core.autocrlf would
+# otherwise convert them to CRLF), so they match Prettier's `endOfLine: 'lf'` default.
+* text=auto eol=lf
