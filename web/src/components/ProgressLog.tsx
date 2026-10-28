@@ -43,6 +43,7 @@ export function ProgressLog({ status, messages }: ProgressLogProps) {
 function statusSummary(status: ExportStatus): string | null {
     switch (status.kind) {
         case 'idle':
+        case 'loggingIn':
         case 'exporting':
             return null
         case 'done':

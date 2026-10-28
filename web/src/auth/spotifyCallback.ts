@@ -24,6 +24,10 @@ export type SpotifyToken = {
     expiresAt: number
 }
 
+export function isTokenValid(token: SpotifyToken | undefined): token is SpotifyToken {
+    return token !== undefined && token.expiresAt > Date.now()
+}
+
 type CompleteLoginOptions = {
     clientId?: string
     // Injectable so tests don't call Spotify.

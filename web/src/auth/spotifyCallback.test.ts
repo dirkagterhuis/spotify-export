@@ -1,4 +1,4 @@
-import { completeLogin } from './spotifyCallback'
+import { completeLogin, isTokenValid } from './spotifyCallback'
 import { getRedirectUri, pendingLoginKey } from './spotifyLogin'
 
 function storePendingLogin(state = 'state-123', codeVerifier = 'verifier-abc') {
@@ -102,5 +102,13 @@ describe('completeLogin', () => {
         await expect(
             completeLogin('?code=old&state=state-123', { clientId: 'client-id', fetchFn })
         ).rejects.toThrow('Spotify refused the login: Invalid authorization code')
+    })
+})
+
+describe('isTokenValid', () => {
+    it('accepts a token until it expires', () => {
+        expect(isTokenValid({ accessToken: 'token', expiresAt: Date.now() + 60_000 })).toBe(true)
+        expect(isTokenValid({ accessToken: 'token', expiresAt: Date.now() - 1 })).toBe(false)
+        expect(isTokenValid(undefined)).toBe(false)
     })
 })

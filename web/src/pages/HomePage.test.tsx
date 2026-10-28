@@ -5,11 +5,14 @@ import { MemoryRouter } from 'react-router'
 import type { FileType } from '../fileType'
 import { HomePage } from './HomePage'
 
+// Most tests are about the export itself, so they start logged in with a token that's still valid.
+const validToken = { accessToken: 'token-xyz', expiresAt: Date.now() + 3_600_000 }
+
 // The page links to /privacy, and a Link needs a router around it.
 function renderHomePage(props: ComponentProps<typeof HomePage> = {}) {
     return render(
         <MemoryRouter>
-            <HomePage {...props} />
+            <HomePage spotifyToken={validToken} {...props} />
         </MemoryRouter>
     )
 }
@@ -78,6 +81,44 @@ describe('HomePage', () => {
         await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
 
         expect(await screen.findByText('Something went wrong: Spotify is down')).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Get my playlists!' })).toBeEnabled()
+    })
+
+    it('logs in first when there is no token, without exporting', async () => {
+        const user = userEvent.setup()
+        const login = vi.fn(() => new Promise<void>(() => {}))
+        const exportPlaylists = vi.fn()
+        renderHomePage({ spotifyToken: undefined, login, exportPlaylists })
+
+        await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
+
+        expect(login).toHaveBeenCalledTimes(1)
+        expect(exportPlaylists).not.toHaveBeenCalled()
+        expect(screen.getByText('Taking you to Spotify to log in…')).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Exporting…' })).toBeDisabled()
+    })
+
+    it('logs in again when the token has expired', async () => {
+        const user = userEvent.setup()
+        const login = vi.fn(() => new Promise<void>(() => {}))
+        const expiredToken = { accessToken: 'old', expiresAt: Date.now() - 1 }
+        renderHomePage({ spotifyToken: expiredToken, login })
+
+        await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
+
+        expect(login).toHaveBeenCalledTimes(1)
+    })
+
+    it('shows the error when the login cannot start', async () => {
+        const user = userEvent.setup()
+        const login = vi.fn(() => Promise.reject(new Error('VITE_SPOTIFY_CLIENT_ID is not set')))
+        renderHomePage({ spotifyToken: undefined, login })
+
+        await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
+
+        expect(
+            await screen.findByText('Something went wrong: VITE_SPOTIFY_CLIENT_ID is not set')
+        ).toBeInTheDocument()
         expect(screen.getByRole('button', { name: 'Get my playlists!' })).toBeEnabled()
     })
 

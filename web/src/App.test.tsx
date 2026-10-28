@@ -29,6 +29,13 @@ describe('App', () => {
         expect(screen.getByRole('heading', { level: 2, name: 'Privacy' })).toBeInTheDocument()
     })
 
+    it('renders the callback page at /callback, which rejects a login this tab never started', async () => {
+        renderAt('/callback?code=code-1&state=state-123')
+        expect(
+            await screen.findByRole('heading', { level: 2, name: 'Login failed' })
+        ).toBeInTheDocument()
+    })
+
     it('renders the not-found page for unknown paths', () => {
         renderAt('/does-not-exist')
         expect(

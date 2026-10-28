@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { isTokenValid, type SpotifyToken } from '../auth/spotifyCallback'
+import { startLogin } from '../auth/spotifyLogin'
 import { ExportForm } from '../components/ExportForm'
 import { Hero } from '../components/Hero'
 import { ProgressLog } from '../components/ProgressLog'
@@ -11,9 +13,15 @@ import { useSessionStorage } from '../hooks/useSessionStorage'
 
 type HomePageProps = {
     exportPlaylists?: ExportPlaylists
+    spotifyToken?: SpotifyToken
+    login?: () => Promise<void>
 }
 
-export function HomePage({ exportPlaylists = fakeExport }: HomePageProps) {
+export function HomePage({
+    exportPlaylists = fakeExport,
+    spotifyToken,
+    login = startLogin,
+}: HomePageProps) {
     // State is lifted up to the page: the picker, the button and the progress log all depend on it.
     // Same storage key as the old frontend, so the choice survives the login redirect.
     const [fileType, setFileType] = useSessionStorage('selectedFileType', FileTypeSchema, 'json')
@@ -21,6 +29,11 @@ export function HomePage({ exportPlaylists = fakeExport }: HomePageProps) {
     const [messages, setMessages] = useState<string[]>([])
 
     function handleExport() {
+        // No token yet, or an hour old: log in first. Until step 7e the user clicks again after.
+        if (!isTokenValid(spotifyToken)) {
+            handleLogin()
+            return
+        }
         // Start every export with a clean log, so exporting a second time doesn't mix two runs.
         setMessages([])
         setStatus({ kind: 'exporting' })
@@ -30,11 +43,16 @@ export function HomePage({ exportPlaylists = fakeExport }: HomePageProps) {
         // Event handlers can't await, hence `void` with both outcomes handled in `then`.
         void exportPlaylists(fileType, onProgress).then(
             () => setStatus({ kind: 'done' }),
-            (error: unknown) =>
-                setStatus({
-                    kind: 'failed',
-                    error: error instanceof Error ? error.message : String(error),
-                })
+            (error: unknown) => setStatus({ kind: 'failed', error: errorMessage(error) })
+        )
+    }
+
+    function handleLogin() {
+        setMessages(['Taking you to Spotify to log in…'])
+        setStatus({ kind: 'loggingIn' })
+        // On success the browser leaves this page, so only the failure needs handling here.
+        void login().catch((error: unknown) =>
+            setStatus({ kind: 'failed', error: errorMessage(error) })
         )
     }
 
@@ -87,11 +105,15 @@ export function HomePage({ exportPlaylists = fakeExport }: HomePageProps) {
                 <ExportForm
                     fileType={fileType}
                     onFileTypeChange={setFileType}
-                    isExporting={status.kind === 'exporting'}
+                    isExporting={status.kind === 'exporting' || status.kind === 'loggingIn'}
                     onExport={handleExport}
                 />
                 <ProgressLog status={status} messages={messages} />
             </Section>
         </>
     )
+}
+
+function errorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error)
 }

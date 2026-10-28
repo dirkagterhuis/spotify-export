@@ -2,6 +2,7 @@
 // on a failed export. This rules out impossible combos two booleans would allow (exporting AND failed).
 export type ExportStatus =
     | { kind: 'idle' }
+    | { kind: 'loggingIn' }
     | { kind: 'exporting' }
     | { kind: 'done' }
     | { kind: 'failed'; error: string }
