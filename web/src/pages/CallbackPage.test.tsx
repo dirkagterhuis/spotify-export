@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
+import { exportAfterLoginState } from '../auth/exportAfterLogin'
 import type { SpotifyToken } from '../auth/spotifyCallback'
 import { CallbackPage } from './CallbackPage'
 
@@ -14,7 +15,7 @@ function renderCallback(
         <StrictMode>
             <MemoryRouter initialEntries={['/callback?code=code-1&state=state-123']}>
                 <Routes>
-                    <Route path="/" element={<p>home page</p>} />
+                    <Route path="/" element={<HomeStub />} />
                     <Route
                         path="/callback"
                         element={
@@ -28,12 +29,20 @@ function renderCallback(
     return { onLogin }
 }
 
+// Shows the location state it was navigated to with, so the test can check what the home page gets.
+function HomeStub() {
+    const { state } = useLocation()
+    return <p>home page {JSON.stringify(state)}</p>
+}
+
 describe('CallbackPage', () => {
     it('completes the login once, even under StrictMode, then goes to the home page', async () => {
         const completeLoginFn = vi.fn().mockResolvedValue(token)
         const { onLogin } = renderCallback(completeLoginFn)
 
-        expect(await screen.findByText('home page')).toBeInTheDocument()
+        expect(
+            await screen.findByText(`home page ${JSON.stringify(exportAfterLoginState)}`)
+        ).toBeInTheDocument()
         expect(completeLoginFn).toHaveBeenCalledTimes(1)
         expect(completeLoginFn).toHaveBeenCalledWith('?code=code-1&state=state-123')
         expect(onLogin).toHaveBeenCalledWith(token)

@@ -78,7 +78,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 7b. Login redirect: Spotify client id + redirect URI config, build the authorize URL, store verifier + state in `sessionStorage`.
    - [x] 7c. Finish the login (no React yet): read back verifier + state, check state and Spotify's error, exchange code + verifier for an access token (`fetch`, zod-validated).
    - [x] 7d. `/callback` route: run 7c once (StrictMode-safe), keep the token in React state (memory only), clean the code from the URL, show login errors. The button logs in first when there's no valid token.
-   - [ ] 7e. After the login, start the export by itself (no second click) and pass the token to the export (still the fake export until step 8).
+   - [x] 7e. After the login, start the export by itself (no second click) and pass the token to the export (still the fake export until step 8).
    - [ ] 7f. Docs: register `http://127.0.0.1:5173/callback` with Spotify, update the run instructions.
 8. Move Spotify API calls (playlists, tracks) to client-side fetch calls.
    1. While here, fix the two known issues: re-clicking the button after a finished export, and the HTML-entity escaping in CSVs (`&#x2F;` → `/`).

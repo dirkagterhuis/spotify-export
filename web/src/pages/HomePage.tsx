@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router'
+import { isExportAfterLogin } from '../auth/exportAfterLogin'
 import { isTokenValid, type SpotifyToken } from '../auth/spotifyCallback'
 import { startLogin } from '../auth/spotifyLogin'
 import { ExportForm } from '../components/ExportForm'
@@ -27,13 +28,22 @@ export function HomePage({
     const [fileType, setFileType] = useSessionStorage('selectedFileType', FileTypeSchema, 'json')
     const [status, setStatus] = useState<ExportStatus>({ kind: 'idle' })
     const [messages, setMessages] = useState<string[]>([])
+    const location = useLocation()
+    const navigate = useNavigate()
+    const exportSectionRef = useRef<HTMLElement>(null)
+    // Same StrictMode guard as on the callback page: the export must start once, not twice.
+    const hasResumedExport = useRef(false)
 
     function handleExport() {
-        // No token yet, or an hour old: log in first. Until step 7e the user clicks again after.
+        // No token yet, or an hour old: log in first. The export then resumes in the effect below.
         if (!isTokenValid(spotifyToken)) {
             handleLogin()
             return
         }
+        startExport(spotifyToken)
+    }
+
+    function startExport(token: SpotifyToken) {
         // Start every export with a clean log, so exporting a second time doesn't mix two runs.
         setMessages([])
         setStatus({ kind: 'exporting' })
@@ -41,7 +51,7 @@ export function HomePage({
         // and the `messages` variable it closed over would still be the empty array from the start.
         const onProgress = (message: string) => setMessages((previous) => [...previous, message])
         // Event handlers can't await, hence `void` with both outcomes handled in `then`.
-        void exportPlaylists(fileType, onProgress).then(
+        void exportPlaylists(token.accessToken, fileType, onProgress).then(
             () => setStatus({ kind: 'done' }),
             (error: unknown) => setStatus({ kind: 'failed', error: errorMessage(error) })
         )
@@ -55,6 +65,24 @@ export function HomePage({
             setStatus({ kind: 'failed', error: errorMessage(error) })
         )
     }
+
+    // Back from Spotify with a fresh token: carry on with the export the user clicked for.
+    // An effect, because nothing is clicked here: the page reacts to how it was navigated to.
+    useEffect(() => {
+        if (
+            hasResumedExport.current ||
+            !isExportAfterLogin(location.state) ||
+            !isTokenValid(spotifyToken)
+        ) {
+            return
+        }
+        hasResumedExport.current = true
+        // Drop the state from this history entry, so a reload or back/forward doesn't export again.
+        void navigate('.', { replace: true, state: null })
+        // After the redirect the page opens at the top; bring the progress log into view.
+        exportSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
+        startExport(spotifyToken)
+    })
 
     return (
         <>
@@ -101,7 +129,7 @@ export function HomePage({
                     for the details.
                 </p>
             </Section>
-            <Section title="Let's get started!">
+            <Section title="Let's get started!" ref={exportSectionRef}>
                 <ExportForm
                     fileType={fileType}
                     onFileTypeChange={setFileType}

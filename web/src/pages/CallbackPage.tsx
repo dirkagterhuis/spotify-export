@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
+import { exportAfterLoginState } from '../auth/exportAfterLogin'
 import { completeLogin, type SpotifyToken } from '../auth/spotifyCallback'
 import { Section } from '../components/Section'
 
@@ -27,8 +28,9 @@ export function CallbackPage({ onLogin, completeLoginFn = completeLogin }: Callb
             (token) => {
                 onLogin(token)
                 // `replace` swaps the /callback entry in the history for /, so the used code leaves the
-                // address bar and the back button doesn't return to a dead callback.
-                void navigate('/', { replace: true })
+                // address bar and the back button doesn't return to a dead callback. The state tells
+                // the home page to carry on with the export that sent the user to Spotify.
+                void navigate('/', { replace: true, state: exportAfterLoginState })
             },
             (loginError: unknown) =>
                 setError(loginError instanceof Error ? loginError.message : String(loginError))

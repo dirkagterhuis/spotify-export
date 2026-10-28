@@ -1,6 +1,7 @@
 import type { FileType } from './fileType'
 
 export type ExportPlaylists = (
+    accessToken: string,
     fileType: FileType,
     onProgress: (message: string) => void
 ) => Promise<void>
@@ -24,6 +25,7 @@ const fakePlaylists = [
 // It reports progress with the same messages the Express app sends over Socket.io, so the real
 // export can take its place behind the same `onProgress` callback.
 export async function fakeExport(
+    _accessToken: string,
     _fileType: FileType,
     onProgress: (message: string) => void,
     stepMs = 250

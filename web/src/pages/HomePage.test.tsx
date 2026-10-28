@@ -1,7 +1,8 @@
-import type { ComponentProps } from 'react'
+import { StrictMode, type ComponentProps } from 'react'
 import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
+import { exportAfterLoginState } from '../auth/exportAfterLogin'
 import type { FileType } from '../fileType'
 import { HomePage } from './HomePage'
 
@@ -14,6 +15,17 @@ function renderHomePage(props: ComponentProps<typeof HomePage> = {}) {
         <MemoryRouter>
             <HomePage spotifyToken={validToken} {...props} />
         </MemoryRouter>
+    )
+}
+
+// Arrives the way /callback sends the user back: with the location state that asks for the export.
+function renderAfterLogin(props: ComponentProps<typeof HomePage> = {}) {
+    return render(
+        <StrictMode>
+            <MemoryRouter initialEntries={[{ pathname: '/', state: exportAfterLoginState }]}>
+                <HomePage spotifyToken={validToken} {...props} />
+            </MemoryRouter>
+        </StrictMode>
     )
 }
 
@@ -42,7 +54,7 @@ describe('HomePage', () => {
         await user.click(screen.getByRole('radio', { name: 'csv' }))
         await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
 
-        expect(exportPlaylists).toHaveBeenCalledWith('csv', expect.any(Function))
+        expect(exportPlaylists).toHaveBeenCalledWith('token-xyz', 'csv', expect.any(Function))
         expect(screen.getByRole('button', { name: 'Exporting…' })).toBeDisabled()
         expect(screen.getByRole('radio', { name: 'json' })).toBeDisabled()
 
@@ -122,6 +134,29 @@ describe('HomePage', () => {
         expect(screen.getByRole('button', { name: 'Get my playlists!' })).toBeEnabled()
     })
 
+    it('starts the export by itself after the login, once, even under StrictMode', () => {
+        const { exportPlaylists } = controllableExport()
+        renderAfterLogin({ exportPlaylists })
+
+        expect(exportPlaylists).toHaveBeenCalledTimes(1)
+        expect(exportPlaylists).toHaveBeenCalledWith('token-xyz', 'json', expect.any(Function))
+        expect(screen.getByRole('button', { name: 'Exporting…' })).toBeDisabled()
+    })
+
+    it('does not start an export on a normal visit', () => {
+        const { exportPlaylists } = controllableExport()
+        renderHomePage({ exportPlaylists })
+
+        expect(exportPlaylists).not.toHaveBeenCalled()
+    })
+
+    it('does not start an export after the login without a valid token', () => {
+        const { exportPlaylists } = controllableExport()
+        renderAfterLogin({ exportPlaylists, spotifyToken: undefined })
+
+        expect(exportPlaylists).not.toHaveBeenCalled()
+    })
+
     it('starts a fresh log when exporting again', async () => {
         const user = userEvent.setup()
         const { exportPlaylists, report, finishExport } = controllableExport()
@@ -142,7 +177,7 @@ function controllableExport() {
     let onProgress: (message: string) => void = () => {}
     let finishExport = () => {}
     const exportPlaylists = vi.fn(
-        (_fileType: FileType, reportProgress: (message: string) => void) =>
+        (_accessToken: string, _fileType: FileType, reportProgress: (message: string) => void) =>
             new Promise<void>((resolve) => {
                 onProgress = reportProgress
                 finishExport = resolve
