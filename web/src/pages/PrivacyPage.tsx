@@ -48,10 +48,11 @@ export function PrivacyPage() {
                     .
                 </p>
             </Section>
-            <Section title="Questions">
+            <Section title="Who runs this site">
                 <p>
-                    The code is open source, so you can check all of this yourself. Questions or
-                    concerns are welcome as an issue on{' '}
+                    spotifyexport.com is a hobby project run by Dirk Agterhuis. The code is open
+                    source, so you can check all of this yourself. Other questions or ideas are
+                    welcome as an issue on{' '}
                     <a href="https://github.com/dirkagterhuis/spotify-export/issues">GitHub</a>.
                 </p>
             </Section>

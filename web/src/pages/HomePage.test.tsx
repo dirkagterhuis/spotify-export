@@ -1,7 +1,18 @@
+import type { ComponentProps } from 'react'
 import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
 import type { FileType } from '../fileType'
 import { HomePage } from './HomePage'
+
+// The page links to /privacy, and a Link needs a router around it.
+function renderHomePage(props: ComponentProps<typeof HomePage> = {}) {
+    return render(
+        <MemoryRouter>
+            <HomePage {...props} />
+        </MemoryRouter>
+    )
+}
 
 describe('HomePage', () => {
     afterEach(() => {
@@ -10,20 +21,20 @@ describe('HomePage', () => {
 
     it('defaults to json and remembers the chosen file type', async () => {
         const user = userEvent.setup()
-        const { unmount } = render(<HomePage />)
+        const { unmount } = renderHomePage()
         expect(screen.getByRole('radio', { name: 'json' })).toBeChecked()
 
         await user.click(screen.getByRole('radio', { name: 'csv' }))
         unmount()
 
-        render(<HomePage />)
+        renderHomePage()
         expect(screen.getByRole('radio', { name: 'csv' })).toBeChecked()
     })
 
     it('exports with the chosen file type and disables the form while exporting', async () => {
         const user = userEvent.setup()
         const { exportPlaylists, finishExport } = controllableExport()
-        render(<HomePage exportPlaylists={exportPlaylists} />)
+        renderHomePage({ exportPlaylists })
 
         await user.click(screen.getByRole('radio', { name: 'csv' }))
         await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
@@ -41,7 +52,7 @@ describe('HomePage', () => {
     it('shows progress messages and a done summary', async () => {
         const user = userEvent.setup()
         const { exportPlaylists, report, finishExport } = controllableExport()
-        render(<HomePage exportPlaylists={exportPlaylists} />)
+        renderHomePage({ exportPlaylists })
         expect(screen.queryByRole('log')).not.toBeInTheDocument()
 
         await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
@@ -62,7 +73,7 @@ describe('HomePage', () => {
     it('shows the error when the export fails', async () => {
         const user = userEvent.setup()
         const exportPlaylists = vi.fn(() => Promise.reject(new Error('Spotify is down')))
-        render(<HomePage exportPlaylists={exportPlaylists} />)
+        renderHomePage({ exportPlaylists })
 
         await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
 
@@ -73,7 +84,7 @@ describe('HomePage', () => {
     it('starts a fresh log when exporting again', async () => {
         const user = userEvent.setup()
         const { exportPlaylists, report, finishExport } = controllableExport()
-        render(<HomePage exportPlaylists={exportPlaylists} />)
+        renderHomePage({ exportPlaylists })
 
         await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
         act(() => report('first run'))

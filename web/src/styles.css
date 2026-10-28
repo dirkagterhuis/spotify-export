@@ -154,3 +154,27 @@ h2 {
     flex-shrink: 0;
     padding: 4px 12px;
 }
+
+.hero {
+    margin-bottom: 48px;
+    text-align: center;
+}
+
+.hero-tagline {
+    font-size: 1.6em;
+    font-weight: bold;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.footer-links li + li::before {
+    content: '·';
+    margin: 0 8px;
+}

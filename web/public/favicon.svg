@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+    <!-- Spotify-green disc with a white download arrow -->
+    <circle cx="16" cy="16" r="16" fill="#1db954" />
+    <path
+        d="M16 7v13m-6-6 6 6 6-6M9 24h14"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+    />
+</svg>

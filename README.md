@@ -70,7 +70,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 6d. File-type picker: controlled radio group, lifted state, `useSessionStorage` hook; button disabled while exporting.
    - [x] 6e. Progress log: list rendering, auto-scroll via `useRef`, export status as a union type, driven by a fake export.
    - [x] 6f. Privacy notice: `/privacy` page + dismissible banner.
-   - [ ] 6g. Story & polish: hero, "why" narrative, how-it-works, footer links (GitHub, author, run-locally instructions), favicon.
+   - [x] 6g. Story & polish: hero, "why" narrative, how-it-works, footer links (GitHub, author, run-locally instructions), favicon.
      - Privacy page: add who runs the site and how to reach them (GDPR expects the controller's identity + contact details).
    - [ ] 6h. Update README dev instructions.
 7. Implement Spotify auth in the browser via Authorization Code + PKCE (`crypto.subtle` for the challenge, `sessionStorage` for the verifier + state). Remove the server-side token exchange and `client_secret`.
@@ -86,6 +86,7 @@ prereq: set up AWS account incl. cost alerts and billshock prevention
 11. Set up Terraform.
 12. Set up DynamoDB Exports table (anonymous hashed Spotify id, date, playlist count, format — no PII).
     1. Update the `/privacy` page before this goes live: a hashed Spotify id is pseudonymous personal data under GDPR, so state what is logged, the legal basis (likely legitimate interest), the retention period, and that AWS stores it (region).
+    2. Add a private contact channel for privacy requests (e.g. deletion), since GitHub issues are public: a forwarding address like `privacy@spotifyexport.com` via the registrar or Cloudflare Email Routing, not a form (that would need a third-party service).
 13. Create Lambda function to log export events + return history.
     1. Use esbuild for bundling.
 14. Wire up API Gateway in front of Lambda (`POST /exports`, `GET /users/:id/exports`).

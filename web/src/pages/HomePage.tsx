@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { ExportForm } from '../components/ExportForm'
+import { Hero } from '../components/Hero'
 import { ProgressLog } from '../components/ProgressLog'
 import { Section } from '../components/Section'
 import type { ExportStatus } from '../exportStatus'
@@ -38,37 +40,47 @@ export function HomePage({ exportPlaylists = fakeExport }: HomePageProps) {
 
     return (
         <>
-            <p className="centre">
-                Welcome to spotifyexport.com. Here you can export your Spotify playlists from
-                Spotify.
-            </p>
-            <Section title="Nice. Why?">
+            <Hero />
+            <Section title="Why export your playlists?">
                 <p>
-                    If you want to backup the music you're enjoying today in a way that you will
-                    always be able to access it.
+                    You probably still have some of the music you grew up with: a shelf of CDs, a
+                    box of vinyl, a folder of mp3s. You owned it, so it stayed.
+                </p>
+                <p>
+                    Playlists are different. They only exist inside your Spotify account. Years of
+                    carefully built mixes are one cancelled subscription away from being gone. In
+                    twenty years, will you still have them?
+                </p>
+                <p>
+                    An export is a backup you keep yourself: a list of every playlist and every
+                    track in it, which you can read, search, or use to rebuild them anywhere.
                 </p>
             </Section>
             <Section title="How does it work?">
-                <p>
-                    Just click the big green button below. You can then login to your Spotify
-                    account and give this app the permissions to read your playlists. Then, all your
-                    playlists will be retrieved and all playlist items will be included in the
-                    export.
-                </p>
+                <ol>
+                    <li>Pick a file format below and click the big green button.</li>
+                    <li>
+                        Log in on Spotify's own page and allow this site to read your playlists.
+                    </li>
+                    <li>
+                        Your browser fetches all your playlists and their tracks from Spotify, then
+                        saves them as one file on your device.
+                    </li>
+                </ol>
             </Section>
-            <Section title="How will I get the export?">
+            <Section title="Which format should I pick?">
                 <p>
-                    You can choose to export as{' '}
-                    <a href="https://en.wikipedia.org/wiki/JSON">json</a> or{' '}
-                    <a href="https://en.wikipedia.org/wiki/Comma-separated_values">csv</a>. If you
-                    don't know what json is, choose csv. If you don't know what csv is: you can
-                    easily turn it into an Excel file.
+                    Choose <a href="https://en.wikipedia.org/wiki/Comma-separated_values">csv</a> if
+                    you want to open the export in Excel. Choose{' '}
+                    <a href="https://en.wikipedia.org/wiki/JSON">json</a> if you want to process it
+                    with code.
                 </p>
             </Section>
             <Section title="What about my data?">
                 <p>
-                    No data is stored anywhere but on your browser, and nothing is tracked. Although
-                    this app only retrieves data from your Spotify account, use it at your own risk.
+                    It stays between your browser and Spotify: no cookies, no tracking, and no
+                    server of ours in between. Read the <Link to="/privacy">privacy notice</Link>{' '}
+                    for the details.
                 </p>
             </Section>
             <Section title="Let's get started!">
