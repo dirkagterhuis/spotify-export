@@ -79,7 +79,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 7c. Finish the login (no React yet): read back verifier + state, check state and Spotify's error, exchange code + verifier for an access token (`fetch`, zod-validated).
    - [x] 7d. `/callback` route: run 7c once (StrictMode-safe), keep the token in React state (memory only), clean the code from the URL, show login errors. The button logs in first when there's no valid token.
    - [x] 7e. After the login, start the export by itself (no second click) and pass the token to the export (still the fake export until step 8).
-   - [ ] 7f. Docs: register `http://127.0.0.1:5173/callback` with Spotify, update the run instructions.
+   - [x] 7f. Docs: register `http://127.0.0.1:5173/callback` with Spotify, update the run instructions.
 8. Move Spotify API calls (playlists, tracks) to client-side fetch calls.
    1. While here, fix the two known issues: re-clicking the button after a finished export, and the HTML-entity escaping in CSVs (`&#x2F;` → `/`).
    2. Check that the `/privacy` page still matches what the code actually does (it was written ahead of steps 7 + 8: PKCE login, direct fetch from Spotify, token lifetime, what's in `sessionStorage`).
@@ -123,9 +123,19 @@ The repo holds two apps while the migration is in progress: the new React SPA in
 - `npm install`. This also installs the git hooks (lefthook), see [Checks and commits](#checks-and-commits).
 
 ## Run the React app (`web/`)
-No Spotify app or certificates needed: until steps 7 + 8 land, the export is faked.
-- `npm run web:dev`: dev server with hot reload on [http://127.0.0.1:5173](http://127.0.0.1:5173). Host and port are fixed (`strictPort`), because the Spotify redirect URI registered in step 7 has to match exactly. If the port is taken, stop the other dev server rather than picking another port.
-- `npm run web:build`: type-checks and builds to `web/dist/`, including the `404.html` copy that GitHub Pages needs for deep links like `/about`.
+The login with Spotify is real (Authorization Code + PKCE, all in the browser); the export itself is still faked until step 8. No client secret, certificates or server needed.
+
+### Spotify app setup (once)
+- Create an app on [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard), or reuse the one of the Express app.
+- Add these redirect URIs to the app. They must match exactly, including the port, and must use `127.0.0.1`: Spotify only allows plain `http` for loopback IP addresses, not for `localhost`.
+  - `http://127.0.0.1:5173/callback` for `npm run web:dev`
+  - `http://127.0.0.1:4173/callback` for `npm run web:preview`
+- The app's client id is in [web/.env](web/.env), committed on purpose: it isn't a secret, every login URL shows it. To use your own Spotify app, put `VITE_SPOTIFY_CLIENT_ID=<your client id>` in `web/.env.local` (git-ignored), which overrides it. Never put a client secret in either file: everything in them ends up in the browser bundle.
+- In development mode, a Spotify app only accepts logins from the users added under *User Management* in the dashboard.
+
+### Commands
+- `npm run web:dev`: dev server with hot reload on [http://127.0.0.1:5173](http://127.0.0.1:5173). Host and port are fixed (`strictPort`), because the redirect URI has to match exactly. If the port is taken, stop the other dev server rather than picking another port.
+- `npm run web:build`: type-checks and builds to `web/dist/`, including the `404.html` copy that GitHub Pages needs for deep links like `/about` and `/callback`.
 - `npm run web:preview`: serves that build on [http://127.0.0.1:4173](http://127.0.0.1:4173), to check it before deploying.
 
 ## Checks and commits
@@ -165,4 +175,6 @@ mkcert dev.spotifyexport.com        # creates dev.spotifyexport.com.pem + dev.sp
 - Fixed local development login flow that was broken because Spotify's OAuth rejects localhost as a redirect URI by pointing to dev.spotifyexport.com at 127.0.0.1 via a DNS A record to allow the app to run locally with a mkcert certificate. 
 
 # Troubleshooting
+- React app, Spotify shows `INVALID_CLIENT: Invalid redirect URI`: the redirect URI isn't registered exactly as sent. Open the app via `http://127.0.0.1:5173` (not `localhost`), and check that `http://127.0.0.1:5173/callback` is in your Spotify app's redirect URIs.
+- React app, "This login wasn't started in this tab, or was already used": the login is tied to the browser tab that started it (`sessionStorage`). Start it again from the home page, in the same tab.
 - During auth/login to spotify: `redirect_uri: Insecure` error: Spotify requires HTTPS for all redirect URIs. Make sure you've completed the mkcert setup above, opened the app via `https://dev.spotifyexport.com:8000` (not `localhost`), and added `https://dev.spotifyexport.com:8000/spotify-app-callback` to your Spotify app's redirect URIs.
