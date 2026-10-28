@@ -1,5 +1,6 @@
 // Step 1 of Spotify's Authorization Code + PKCE flow: send the user to Spotify's login page.
 // https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow
+import { z } from 'zod'
 import { createCodeChallenge, generateCodeVerifier, generateState } from './pkce'
 
 const authorizeUrl = 'https://accounts.spotify.com/authorize'
@@ -9,10 +10,14 @@ const scope = 'playlist-read-private'
 // Survives the round trip to Spotify in sessionStorage; the callback (step 7c) reads it back.
 export const pendingLoginKey = 'spotifyPendingLogin'
 
-export type PendingLogin = {
-    codeVerifier: string
-    state: string
-}
+// A schema rather than a plain type: the callback reads this back from storage, where it could be
+// missing, stale or hand-edited, so it gets validated instead of trusted.
+export const PendingLoginSchema = z.object({
+    codeVerifier: z.string(),
+    state: z.string(),
+})
+
+export type PendingLogin = z.infer<typeof PendingLoginSchema>
 
 type AuthorizeUrlParams = {
     clientId: string
@@ -68,7 +73,7 @@ export async function startLogin({
 }
 
 // The client id is public (it ends up in every login URL), so it can live in a committed .env file.
-function getClientId(): string {
+export function getClientId(): string {
     const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID
     if (!clientId) {
         throw new Error('VITE_SPOTIFY_CLIENT_ID is not set, see web/.env')

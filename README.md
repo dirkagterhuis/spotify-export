@@ -76,9 +76,10 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 7. Implement Spotify auth in the browser via Authorization Code + PKCE (`crypto.subtle` for the challenge, `sessionStorage` for the verifier + state). Remove the server-side token exchange and `client_secret` together with the rest of the Express app in step 8, so the live export keeps working until the SPA can replace it.
    - [x] 7a. PKCE building blocks: code verifier, state and S256 code challenge (Web Crypto), tested against the RFC 7636 example.
    - [x] 7b. Login redirect: Spotify client id + redirect URI config, build the authorize URL, store verifier + state in `sessionStorage`.
-   - [ ] 7c. Callback: `/callback` route, check state, exchange code + verifier for an access token (`fetch`, zod-validated), clean the URL.
-   - [ ] 7d. Wire into the home page: button → login → back → export starts with the token (still the fake export until step 8); handle "access denied" and expired logins.
-   - [ ] 7e. Docs: register `http://127.0.0.1:5173/callback` with Spotify, update the run instructions.
+   - [x] 7c. Finish the login (no React yet): read back verifier + state, check state and Spotify's error, exchange code + verifier for an access token (`fetch`, zod-validated).
+   - [ ] 7d. `/callback` route: run 7c once (StrictMode-safe), keep the token in React state (memory only), clean the code from the URL.
+   - [ ] 7e. Wire into the home page: button → login → back → export starts with the token (still the fake export until step 8); show login errors like "access denied" in the progress log.
+   - [ ] 7f. Docs: register `http://127.0.0.1:5173/callback` with Spotify, update the run instructions.
 8. Move Spotify API calls (playlists, tracks) to client-side fetch calls.
    1. While here, fix the two known issues: re-clicking the button after a finished export, and the HTML-entity escaping in CSVs (`&#x2F;` → `/`).
    2. Check that the `/privacy` page still matches what the code actually does (it was written ahead of steps 7 + 8: PKCE login, direct fetch from Spotify, token lifetime, what's in `sessionStorage`).
@@ -99,6 +100,7 @@ prereq: set up AWS account incl. cost alerts and billshock prevention
 
 ### Cross-cutting
 16. Add versioning based on commit messages.
+17. Remove unnecessary comments: many were added to explain concepts while learning (React, PKCE, zod). Keep only the ones that explain a non-obvious why.
 
 ## Future features (after architecture migration)
 - Allow selection of 'own playlists only' vs. 'subscribed playlists too'
