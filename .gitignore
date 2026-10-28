@@ -12,3 +12,5 @@ web/dist/
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+# Local overrides of web/.env
+web/.env*.local

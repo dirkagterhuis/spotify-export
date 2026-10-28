@@ -75,7 +75,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 6h. Update README dev instructions.
 7. Implement Spotify auth in the browser via Authorization Code + PKCE (`crypto.subtle` for the challenge, `sessionStorage` for the verifier + state). Remove the server-side token exchange and `client_secret` together with the rest of the Express app in step 8, so the live export keeps working until the SPA can replace it.
    - [x] 7a. PKCE building blocks: code verifier, state and S256 code challenge (Web Crypto), tested against the RFC 7636 example.
-   - [ ] 7b. Login redirect: Spotify client id + redirect URI config, build the authorize URL, store verifier + state in `sessionStorage`.
+   - [x] 7b. Login redirect: Spotify client id + redirect URI config, build the authorize URL, store verifier + state in `sessionStorage`.
    - [ ] 7c. Callback: `/callback` route, check state, exchange code + verifier for an access token (`fetch`, zod-validated), clean the URL.
    - [ ] 7d. Wire into the home page: button → login → back → export starts with the token (still the fake export until step 8); handle "access denied" and expired logins.
    - [ ] 7e. Docs: register `http://127.0.0.1:5173/callback` with Spotify, update the run instructions.
