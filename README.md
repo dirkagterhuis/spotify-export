@@ -72,7 +72,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 6f. Privacy notice: `/privacy` page + dismissible banner.
    - [x] 6g. Story & polish: hero, "why" narrative, how-it-works, footer links (GitHub, author, run-locally instructions), favicon.
      - Privacy page: add who runs the site and how to reach them (GDPR expects the controller's identity + contact details).
-   - [ ] 6h. Update README dev instructions.
+   - [x] 6h. Update README dev instructions.
 7. Implement Spotify auth in the browser via Authorization Code + PKCE (`crypto.subtle` for the challenge, `sessionStorage` for the verifier + state). Remove the server-side token exchange and `client_secret`.
 8. Move Spotify API calls (playlists, tracks) to client-side fetch calls.
    1. While here, fix the two known issues: re-clicking the button after a finished export, and the HTML-entity escaping in CSVs (`&#x2F;` → `/`).
@@ -109,28 +109,43 @@ prereq: set up AWS account incl. cost alerts and billshock prevention
 - CSV's contain weird unicode like characters, e.g. `&#x2F;` instead of `/`.
 
 # How to
+The repo holds two apps while the migration is in progress: the new React SPA in `web/`, and the old Express + Socket.io app in `src/` + `public/`, which keeps the live export working until step 8 replaces it.
 
-## Setup development environment
-You'll need to create a spotify app which you can create on [https://developer.spotify.com/dashboard/login](https://developer.spotify.com/dashboard/login).
+## Prerequisites
+- Node.js 24.16 or newer (see `.nvmrc`). With a version manager: `nvm use` (macOS/Linux) or `nvm install 24.16.0` / `fnm use` (Windows, via [nvm-windows](https://github.com/coreybutler/nvm-windows) or [fnm](https://github.com/Schniz/fnm)).
+- `npm install`. This also installs the git hooks (lefthook), see [Checks and commits](#checks-and-commits).
 
-- `npm install`
-- Save your Spotify App `Client Id` and `Client Secret` in `local.yml`:
+## Run the React app (`web/`)
+No Spotify app or certificates needed: until steps 7 + 8 land, the export is faked.
+- `npm run web:dev`: dev server with hot reload on [http://127.0.0.1:5173](http://127.0.0.1:5173). Host and port are fixed (`strictPort`), because the Spotify redirect URI registered in step 7 has to match exactly. If the port is taken, stop the other dev server rather than picking another port.
+- `npm run web:build`: type-checks and builds to `web/dist/`, including the `404.html` copy that GitHub Pages needs for deep links like `/about`.
+- `npm run web:preview`: serves that build on [http://127.0.0.1:4173](http://127.0.0.1:4173), to check it before deploying.
+
+## Checks and commits
+- `npm test` runs Vitest in watch mode (`npm run test:run` for a single run, `npm run test:coverage` for coverage). There are two projects: `server` (Node) for `src/` and `web` (jsdom) for the SPA; run one with e.g. `npm test -- --project web`.
+- `npm run lint` (ESLint), `npm run check:types` (both tsconfigs), `npm run format` (Prettier).
+- Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat: ...`, `fix: ...`, `docs: ...`), enforced by commitlint. The pre-commit hook formats and lints staged files and type-checks the project.
+
+## Run the Express app (until step 8)
+You'll need a Spotify app, which you can create on [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard).
+
+- Save your Spotify app's `Client Id` and `Client Secret` in `local.yml` (git-ignored):
 ```yml
 localSpotifyAppClientId: "INSERT_CLIENT_ID"
 localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
 ```
-- Set up HTTPS for localhost using [mkcert](https://github.com/FiloSottile/mkcert) (required by Spotify's OAuth redirect URI policy):
+- Spotify rejects `localhost` redirect URIs and requires HTTPS, so the app runs on `dev.spotifyexport.com`, a DNS A record pointing at 127.0.0.1. Create a trusted certificate for it with [mkcert](https://github.com/FiloSottile/mkcert), in the project root:
 ```bash
-brew install mkcert
-mkcert -install        # installs a local CA — requires your system password, run in a terminal
-mkcert localhost       # generates localhost.pem and localhost-key.pem in the project root
+winget install FiloSottile.mkcert   # Windows; on macOS: brew install mkcert
+mkcert -install                     # installs a local CA; asks for confirmation or your system password
+mkcert dev.spotifyexport.com        # creates dev.spotifyexport.com.pem + dev.spotifyexport.com-key.pem
 ```
-- Add `https://localhost:8000/spotify-app-callback` to the allowed redirect URIs in your Spotify app on [developer.spotify.com](https://developer.spotify.com/dashboard).
-- `npm run dev` to start up local server on [https://localhost:8000](https://localhost:8000). From there, you can initiate the export. Go to [https://dev.spotifyexport.com:8000](https://dev.spotifyexport.com:8000) to view ui. 
+- Add `https://dev.spotifyexport.com:8000/spotify-app-callback` to the redirect URIs of your Spotify app.
+- `npm run dev` starts the server on [https://dev.spotifyexport.com:8000](https://dev.spotifyexport.com:8000). From there, you can run a real export.
 
-## Build
-- `npm run build`. For some reason, this could give `Missing script: "build"`. In that case, copy-pasta the script.
-- Push to AWS codecommit repo. 
+### Build and deploy
+- `npm run build:`. Note the trailing colon: that is the script's actual name, which is why `npm run build` says `Missing script: "build"`.
+- Push to AWS codecommit repo.
 - `eb deploy`
 
 # Changelog
@@ -143,4 +158,4 @@ mkcert localhost       # generates localhost.pem and localhost-key.pem in the pr
 - Fixed local development login flow that was broken because Spotify's OAuth rejects localhost as a redirect URI by pointing to dev.spotifyexport.com at 127.0.0.1 via a DNS A record to allow the app to run locally with a mkcert certificate. 
 
 # Troubleshooting
-- During auth/login to spotify: `redirect_uri: Insecure` error: Spotify requires HTTPS for all redirect URIs. Make sure you've completed the mkcert setup above and added `https://localhost:8000/spotify-app-callback` to your Spotify app's allowed redirect URIs.
+- During auth/login to spotify: `redirect_uri: Insecure` error: Spotify requires HTTPS for all redirect URIs. Make sure you've completed the mkcert setup above, opened the app via `https://dev.spotifyexport.com:8000` (not `localhost`), and added `https://dev.spotifyexport.com:8000/spotify-app-callback` to your Spotify app's redirect URIs.
