@@ -79,6 +79,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 10. Set up GitHub Actions: lint / test / build → deploy frontend to Pages.
 
 ### Phase B — Optional analytics backend (the AWS / Terraform / Lambda / DynamoDB learning)
+prereq: set up AWS account incl. cost alerts and billshock prevention
 11. Set up Terraform.
 12. Set up DynamoDB Exports table (anonymous hashed Spotify id, date, playlist count, format — no PII).
 13. Create Lambda function to log export events + return history.
