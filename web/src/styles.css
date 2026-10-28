@@ -43,6 +43,18 @@ footer {
     text-align: center;
 }
 
+/* Same quiet style as the header links. Setting `color` also overrides the browser's default blue
+   and visited purple. */
+footer a {
+    color: inherit;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: #333333;
+    text-decoration: underline;
+}
+
 h1 {
     font-size: min(10vw, 70px);
     margin-bottom: 16px;
@@ -117,4 +129,28 @@ h2 {
 
 .progress-log-summary.failed {
     color: #b42318;
+}
+
+.privacy-banner {
+    align-items: center;
+    background: #e6e6e6;
+    border-radius: 8px;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding: 8px 16px;
+}
+
+.privacy-banner p {
+    margin: 0;
+}
+
+.privacy-banner button {
+    background: none;
+    border: 1px solid #888888;
+    border-radius: 50px;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 4px 12px;
 }

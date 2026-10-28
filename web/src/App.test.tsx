@@ -24,6 +24,11 @@ describe('App', () => {
         expect(screen.getByRole('heading', { level: 2, name: 'About' })).toBeInTheDocument()
     })
 
+    it('renders the privacy page at /privacy', () => {
+        renderAt('/privacy')
+        expect(screen.getByRole('heading', { level: 2, name: 'Privacy' })).toBeInTheDocument()
+    })
+
     it('renders the not-found page for unknown paths', () => {
         renderAt('/does-not-exist')
         expect(

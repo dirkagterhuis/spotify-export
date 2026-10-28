@@ -69,19 +69,23 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 6c. Routing: React Router + `AboutPage`, `NotFoundPage` (`/`, `/about`, `*`) + `404.html` fallback for GitHub Pages. `/privacy` follows in 6f.
    - [x] 6d. File-type picker: controlled radio group, lifted state, `useSessionStorage` hook; button disabled while exporting.
    - [x] 6e. Progress log: list rendering, auto-scroll via `useRef`, export status as a union type, driven by a fake export.
-   - [ ] 6f. Privacy notice: `/privacy` page + dismissible banner.
+   - [x] 6f. Privacy notice: `/privacy` page + dismissible banner.
    - [ ] 6g. Story & polish: hero, "why" narrative, how-it-works, footer links (GitHub, author, run-locally instructions), favicon.
+     - Privacy page: add who runs the site and how to reach them (GDPR expects the controller's identity + contact details).
    - [ ] 6h. Update README dev instructions.
 7. Implement Spotify auth in the browser via Authorization Code + PKCE (`crypto.subtle` for the challenge, `sessionStorage` for the verifier + state). Remove the server-side token exchange and `client_secret`.
 8. Move Spotify API calls (playlists, tracks) to client-side fetch calls.
    1. While here, fix the two known issues: re-clicking the button after a finished export, and the HTML-entity escaping in CSVs (`&#x2F;` → `/`).
+   2. Check that the `/privacy` page still matches what the code actually does (it was written ahead of steps 7 + 8: PKCE login, direct fetch from Spotify, token lifetime, what's in `sessionStorage`).
 9. Migrate DNS / update Spotify app redirect URIs; deploy the SPA to GitHub Pages.
+   1. Before go-live: check the Spotify Developer Policy's privacy-policy requirements against the `/privacy` page.
 10. Set up GitHub Actions: lint / test / build → deploy frontend to Pages.
 
 ### Phase B — Optional analytics backend (the AWS / Terraform / Lambda / DynamoDB learning)
 prereq: set up AWS account incl. cost alerts and billshock prevention
 11. Set up Terraform.
 12. Set up DynamoDB Exports table (anonymous hashed Spotify id, date, playlist count, format — no PII).
+    1. Update the `/privacy` page before this goes live: a hashed Spotify id is pseudonymous personal data under GDPR, so state what is logged, the legal basis (likely legitimate interest), the retention period, and that AWS stores it (region).
 13. Create Lambda function to log export events + return history.
     1. Use esbuild for bundling.
 14. Wire up API Gateway in front of Lambda (`POST /exports`, `GET /users/:id/exports`).
@@ -96,6 +100,7 @@ prereq: set up AWS account incl. cost alerts and billshock prevention
 - Allow uploading of playlists to a Spotify account
 - Visual progress bar for export
 - Track traffic
+  - Analytics that store or read anything on the device (cookies, ids) need opt-in consent under the EU ePrivacy rules, i.e. a real consent banner. A cookieless, IP-anonymising setup avoids that; update `/privacy` either way.
 - Add tooltips to explain json and csv file types
 
 # Known issues
