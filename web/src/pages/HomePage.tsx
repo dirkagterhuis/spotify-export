@@ -1,25 +1,39 @@
 import { useState } from 'react'
 import { ExportForm } from '../components/ExportForm'
+import { ProgressLog } from '../components/ProgressLog'
 import { Section } from '../components/Section'
-import { fakeExport } from '../fakeExport'
+import type { ExportStatus } from '../exportStatus'
+import { fakeExport, type ExportPlaylists } from '../fakeExport'
 import { FileTypeSchema } from '../fileType'
 import { useSessionStorage } from '../hooks/useSessionStorage'
 
 type HomePageProps = {
-    exportPlaylists?: typeof fakeExport
+    exportPlaylists?: ExportPlaylists
 }
 
 export function HomePage({ exportPlaylists = fakeExport }: HomePageProps) {
-    // State is lifted up to the page: the picker and the button both depend on it, and the progress
-    // log (6e) will too. Same storage key as the old frontend, so the choice survives the login redirect.
+    // State is lifted up to the page: the picker, the button and the progress log all depend on it.
+    // Same storage key as the old frontend, so the choice survives the login redirect.
     const [fileType, setFileType] = useSessionStorage('selectedFileType', FileTypeSchema, 'json')
-    const [isExporting, setIsExporting] = useState(false)
+    const [status, setStatus] = useState<ExportStatus>({ kind: 'idle' })
+    const [messages, setMessages] = useState<string[]>([])
 
     function handleExport() {
-        setIsExporting(true)
-        // Event handlers can't await; `finally` re-enables the form whether the export succeeds or not.
-        // Error handling lands with the export status union type in 6e.
-        void exportPlaylists(fileType).finally(() => setIsExporting(false))
+        // Start every export with a clean log, so exporting a second time doesn't mix two runs.
+        setMessages([])
+        setStatus({ kind: 'exporting' })
+        // The updater form `previous => ...` matters: this callback runs many times after the click,
+        // and the `messages` variable it closed over would still be the empty array from the start.
+        const onProgress = (message: string) => setMessages((previous) => [...previous, message])
+        // Event handlers can't await, hence `void` with both outcomes handled in `then`.
+        void exportPlaylists(fileType, onProgress).then(
+            () => setStatus({ kind: 'done' }),
+            (error: unknown) =>
+                setStatus({
+                    kind: 'failed',
+                    error: error instanceof Error ? error.message : String(error),
+                })
+        )
     }
 
     return (
@@ -61,9 +75,10 @@ export function HomePage({ exportPlaylists = fakeExport }: HomePageProps) {
                 <ExportForm
                     fileType={fileType}
                     onFileTypeChange={setFileType}
-                    isExporting={isExporting}
+                    isExporting={status.kind === 'exporting'}
                     onExport={handleExport}
                 />
+                <ProgressLog status={status} messages={messages} />
             </Section>
         </>
     )

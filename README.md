@@ -68,7 +68,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 6b. Layout as components: `Layout`, `Header`, `Footer`, `Section`, `HomePage`; port `styles.css` (no jQuery/Bootstrap).
    - [x] 6c. Routing: React Router + `AboutPage`, `NotFoundPage` (`/`, `/about`, `*`) + `404.html` fallback for GitHub Pages. `/privacy` follows in 6f.
    - [x] 6d. File-type picker: controlled radio group, lifted state, `useSessionStorage` hook; button disabled while exporting.
-   - [ ] 6e. Progress log: list rendering, auto-scroll via `useRef`, export status as a union type, driven by a fake export.
+   - [x] 6e. Progress log: list rendering, auto-scroll via `useRef`, export status as a union type, driven by a fake export.
    - [ ] 6f. Privacy notice: `/privacy` page + dismissible banner.
    - [ ] 6g. Story & polish: hero, "why" narrative, how-it-works, footer links (GitHub, author, run-locally instructions), favicon.
    - [ ] 6h. Update README dev instructions.

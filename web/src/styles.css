@@ -89,3 +89,32 @@ h2 {
     cursor: not-allowed;
     opacity: 0.6;
 }
+
+/* Fixed height so new lines scroll inside the box instead of pushing the page down. */
+.progress-log {
+    background: #dcdcdc;
+    color: #696969;
+    height: 200px;
+    margin-top: 30px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.progress-log ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.progress-log-summary {
+    font-weight: bold;
+    margin: 8px 0 0;
+}
+
+.progress-log-summary.done {
+    color: #1a7f3c;
+}
+
+.progress-log-summary.failed {
+    color: #b42318;
+}
