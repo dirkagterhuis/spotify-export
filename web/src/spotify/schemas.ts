@@ -69,6 +69,14 @@ function pageSchema<Item extends z.ZodType>(item: Item) {
 export const PlaylistPageSchema = pageSchema(PlaylistSchema)
 export const PlaylistItemPageSchema = pageSchema(PlaylistItemSchema)
 
+// The logged-in user (`/me`). Only the id: to tell which playlists are the user's own.
+export const CurrentUserSchema = z.object({ id: z.string() })
+
+// The body Spotify sends along with an error status, e.g. `{ "error": { "status": 403, "message": "Forbidden" } }`.
+export const ApiErrorSchema = z.object({
+    error: z.object({ message: z.string() }),
+})
+
 export type Track = z.infer<typeof TrackSchema>
 export type Episode = z.infer<typeof EpisodeSchema>
 export type PlaylistItem = z.infer<typeof PlaylistItemSchema>
