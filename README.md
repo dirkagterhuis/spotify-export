@@ -154,7 +154,7 @@ The repo holds two apps while the migration is in progress: the new React SPA in
 - `npm install`. This also installs the git hooks (lefthook), see [Checks and commits](#checks-and-commits).
 
 ## Run the React app (`web/`)
-The login with Spotify is real (Authorization Code + PKCE, all in the browser); the export itself is still faked until step 8. No client secret, certificates or server needed.
+Everything runs in the browser: the login with Spotify (Authorization Code + PKCE), reading the playlists and creating the file. No client secret, certificates or server needed.
 
 ### Spotify app setup (once)
 - Create an app on [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard), or reuse the one of the Express app.
@@ -163,6 +163,7 @@ The login with Spotify is real (Authorization Code + PKCE, all in the browser); 
   - `http://127.0.0.1:4173/callback` for `npm run web:preview`
 - The app's client id is in [web/.env](web/.env), committed on purpose: it isn't a secret, every login URL shows it. To use your own Spotify app, put `VITE_SPOTIFY_CLIENT_ID=<your client id>` in `web/.env.local` (git-ignored), which overrides it. Never put a client secret in either file: everything in them ends up in the browser bundle.
 - In development mode, a Spotify app only accepts logins from the users added under *User Management* in the dashboard.
+- To try an export without waiting for all your playlists, put `VITE_EXPORT_PLAYLIST_LIMIT=10` in `web/.env.local`: it exports only the first 10, and the progress log says so. Leave it out to export all of them. Restart `npm run web:dev` after changing a `.env` file.
 
 ### Commands
 - `npm run web:dev`: dev server with hot reload on [http://127.0.0.1:5173](http://127.0.0.1:5173). Host and port are fixed (`strictPort`), because the redirect URI has to match exactly. If the port is taken, stop the other dev server rather than picking another port.

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { exportAfterLoginState } from '../auth/exportAfterLogin'
 import type { FileType } from '../fileType'
+import { SpotifyApiError } from '../spotify/spotifyApi'
 import { HomePage } from './HomePage'
 
 // Most tests are about the export itself, so they start logged in with a token that's still valid.
@@ -169,6 +170,54 @@ describe('HomePage', () => {
 
         expect(screen.queryByText('first run')).not.toBeInTheDocument()
         expect(screen.queryByText(/^Done!/)).not.toBeInTheDocument()
+    })
+
+    // The Express app gave an error on a second click (a known issue in the README).
+    it('finishes a second export after a finished one', async () => {
+        const user = userEvent.setup()
+        const exportPlaylists = vi.fn(() => Promise.resolve())
+        renderHomePage({ exportPlaylists })
+
+        await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
+        expect(await screen.findByText(/^Done!/)).toBeInTheDocument()
+        await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
+
+        expect(exportPlaylists).toHaveBeenCalledTimes(2)
+        expect(await screen.findByText(/^Done!/)).toBeInTheDocument()
+    })
+
+    it('logs in again on the next click after Spotify refused the token', async () => {
+        const user = userEvent.setup()
+        const login = vi.fn(() => new Promise<void>(() => {}))
+        const exportPlaylists = vi.fn(() =>
+            Promise.reject(
+                new SpotifyApiError('Your Spotify login has expired. Log in again.', 401)
+            )
+        )
+        renderHomePage({ exportPlaylists, login })
+
+        await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
+        expect(await screen.findByText(/login has expired/)).toBeInTheDocument()
+        expect(login).not.toHaveBeenCalled()
+
+        await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
+
+        expect(login).toHaveBeenCalledTimes(1)
+        expect(exportPlaylists).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not log in again after other errors', async () => {
+        const user = userEvent.setup()
+        const login = vi.fn(() => new Promise<void>(() => {}))
+        const exportPlaylists = vi.fn(() => Promise.reject(new SpotifyApiError('Too many', 429)))
+        renderHomePage({ exportPlaylists, login })
+
+        await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
+        await screen.findByText(/Too many/)
+        await user.click(screen.getByRole('button', { name: 'Get my playlists!' }))
+
+        expect(login).not.toHaveBeenCalled()
+        expect(exportPlaylists).toHaveBeenCalledTimes(2)
     })
 })
 

@@ -68,8 +68,8 @@ describe('toCsv', () => {
         const csv = toCsv([playlist])
 
         expect(csv.split('\r\n')).toEqual([
-            'playlist id,playlist name,playlist owner name,playlist owner type,playlist is collaborative,playlist href,playlist description,item type,item id,item name,item artist name(s),item album name,item show name,item href,item is local',
-            'pl1,My Playlist,Alice,user,false,https://api.spotify.com/v1/playlists/pl1,A playlist,track,tr1,Song One,"Artist A, Artist B",Album X,,https://api.spotify.com/v1/tracks/tr1,false',
+            'playlist id,playlist name,playlist owner name,playlist owner type,playlist is collaborative,playlist href,playlist description,playlist tracks skipped because,item type,item id,item name,item artist name(s),item album name,item show name,item href,item is local',
+            'pl1,My Playlist,Alice,user,false,https://api.spotify.com/v1/playlists/pl1,A playlist,,track,tr1,Song One,"Artist A, Artist B",Album X,,https://api.spotify.com/v1/tracks/tr1,false',
         ])
     })
 
@@ -111,9 +111,36 @@ describe('toCsv', () => {
     })
 
     it('skips items that are no longer available', () => {
-        const csv = toCsv([{ ...playlist, items: [{ is_local: false, item: null }] }])
+        const csv = toCsv([
+            { ...playlist, items: [trackItem, { is_local: false, item: null }, trackItem] },
+        ])
 
-        expect(csvRows(csv)).toHaveLength(1)
+        expect(csvRows(csv)).toHaveLength(3)
+    })
+
+    it('writes one row with empty item columns for a playlist without items', () => {
+        const [header, row] = csvRows(toCsv([{ ...playlist, items: [] }]))
+
+        expect(row).toHaveLength(header.length)
+        expect(row.slice(0, 8)).toEqual([
+            'pl1',
+            'My Playlist',
+            'Alice',
+            'user',
+            'false',
+            playlist.href,
+            'A playlist',
+            '',
+        ])
+        expect(row.slice(8).every((value) => value === '')).toBe(true)
+    })
+
+    it('says why the tracks of a playlist were skipped', () => {
+        const skipped = { ...playlist, items: [], items_skipped: 'Not yours' }
+
+        const [, row] = csvRows(toCsv([skipped]))
+
+        expect(row[7]).toBe('Not yours')
     })
 
     it('writes an empty owner name when Spotify has none', () => {

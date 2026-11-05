@@ -8,9 +8,10 @@ import { Hero } from '../components/Hero'
 import { ProgressLog } from '../components/ProgressLog'
 import { Section } from '../components/Section'
 import type { ExportStatus } from '../exportStatus'
-import { fakeExport, type ExportPlaylists } from '../fakeExport'
 import { FileTypeSchema } from '../fileType'
 import { useSessionStorage } from '../hooks/useSessionStorage'
+import { SpotifyApiError } from '../spotify/spotifyApi'
+import { spotifyExport, type ExportPlaylists } from '../spotifyExport'
 
 type HomePageProps = {
     exportPlaylists?: ExportPlaylists
@@ -19,7 +20,7 @@ type HomePageProps = {
 }
 
 export function HomePage({
-    exportPlaylists = fakeExport,
+    exportPlaylists = spotifyExport,
     spotifyToken,
     login = startLogin,
 }: HomePageProps) {
@@ -33,10 +34,14 @@ export function HomePage({
     const exportSectionRef = useRef<HTMLElement>(null)
     // Same StrictMode guard as on the callback page: the export must start once, not twice.
     const hasResumedExport = useRef(false)
+    // A token Spotify refused with a 401 during an export. `expiresAt` can't tell: Spotify may end
+    // a login before its hour is up, or the device clock may be off.
+    const [rejectedAccessToken, setRejectedAccessToken] = useState<string>()
 
     function handleExport() {
-        // No token yet, or an hour old: log in first. The export then resumes in the effect below.
-        if (!isTokenValid(spotifyToken)) {
+        // No token yet, an hour old, or refused by Spotify: log in first. The export then resumes
+        // in the effect below.
+        if (!isTokenValid(spotifyToken) || spotifyToken.accessToken === rejectedAccessToken) {
             handleLogin()
             return
         }
@@ -53,7 +58,14 @@ export function HomePage({
         // Event handlers can't await, hence `void` with both outcomes handled in `then`.
         void exportPlaylists(token.accessToken, fileType, onProgress).then(
             () => setStatus({ kind: 'done' }),
-            (error: unknown) => setStatus({ kind: 'failed', error: errorMessage(error) })
+            (error: unknown) => {
+                // Not a redirect to Spotify straight away: the user sees what happened first, and
+                // the next click logs in again (a redirect loop is impossible this way).
+                if (error instanceof SpotifyApiError && error.status === 401) {
+                    setRejectedAccessToken(token.accessToken)
+                }
+                setStatus({ kind: 'failed', error: errorMessage(error) })
+            }
         )
     }
 

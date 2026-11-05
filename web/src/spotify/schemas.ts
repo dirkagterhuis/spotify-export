@@ -81,5 +81,7 @@ export type Track = z.infer<typeof TrackSchema>
 export type Episode = z.infer<typeof EpisodeSchema>
 export type PlaylistItem = z.infer<typeof PlaylistItemSchema>
 export type Playlist = z.infer<typeof PlaylistSchema>
-// What the export file is made of: a playlist plus all its items.
-export type PlaylistWithItems = Playlist & { items: PlaylistItem[] }
+// What the export file is made of: a playlist plus all its items. When Spotify didn't let the app
+// read the items, `items` is empty and `items_skipped` says why, so the playlist still shows up.
+// Snake case, like the rest of the file, which follows Spotify's field names.
+export type PlaylistWithItems = Playlist & { items: PlaylistItem[]; items_skipped?: string }

@@ -73,6 +73,7 @@ const csvHeaders = [
     'playlist is collaborative',
     'playlist href',
     'playlist description',
+    'playlist tracks skipped because',
     'item type',
     'item id',
     'item name',
@@ -84,7 +85,8 @@ const csvHeaders = [
 ]
 
 // One row per track or episode. Items that are no longer available on Spotify have no data left,
-// so they get no row (the JSON file keeps them, as null).
+// so they get no row (the JSON file keeps them, as null). A playlist without any item row (empty,
+// or its tracks were skipped) gets one row with empty item columns, so it isn't missing.
 export function toCsv(playlists: PlaylistWithItems[]): string {
     const rows = [csvHeaders]
     for (const playlist of playlists) {
@@ -96,13 +98,15 @@ export function toCsv(playlists: PlaylistWithItems[]): string {
             String(playlist.collaborative),
             playlist.href,
             playlist.description,
+            playlist.items_skipped ?? '',
         ]
-        for (const entry of playlist.items) {
-            const itemColumns = toItemColumns(entry)
-            if (itemColumns) {
-                rows.push([...playlistColumns, ...itemColumns])
-            }
-        }
+        const itemRows = playlist.items
+            .map(toItemColumns)
+            .filter((itemColumns) => itemColumns !== undefined)
+            .map((itemColumns) => [...playlistColumns, ...itemColumns])
+        // Every row has as many columns as the header (RFC 4180), so fill the item columns with ''.
+        const emptyItemColumns = Array<string>(csvHeaders.length - playlistColumns.length).fill('')
+        rows.push(...(itemRows.length > 0 ? itemRows : [[...playlistColumns, ...emptyItemColumns]]))
     }
     // CRLF line endings, as the CSV standard (RFC 4180) prescribes.
     return rows.map((row) => row.map(escapeCsvValue).join(',')).join('\r\n')

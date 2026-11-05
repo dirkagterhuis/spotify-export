@@ -47,7 +47,7 @@ function statusSummary(status: ExportStatus): string | null {
         case 'exporting':
             return null
         case 'done':
-            return 'Done! Your download will start here once the real export lands (step 8).'
+            return 'Done! Your browser is saving the file, usually in your Downloads folder.'
         case 'failed':
             return `Something went wrong: ${status.error}`
     }
