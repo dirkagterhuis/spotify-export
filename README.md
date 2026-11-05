@@ -5,7 +5,7 @@ This application allows users to export playlists from their Spotify account to 
 3. Per playlist, retrieve all tracks and episodes.
 4. Save them as one file on your device.
 
-It's a React + TypeScript single-page app that does all of this in the browser: there is no server. It goes live on GitHub Pages in step 9. You can also clone this repository and run it yourself; see [How to](#how-to). Spotify limits who can use it, see [Known issues and limits](#known-issues-and-limits).
+It's a React + TypeScript single-page app that does all of this in the browser: there is no server. It's hosted on GitHub Pages and deployed by GitHub Actions on every push to `main`. You can also clone this repository and run it yourself; see [How to](#how-to). Spotify limits who can use it, see [Known issues and limits](#known-issues-and-limits).
 
 # Architecture plan
 
@@ -94,9 +94,13 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 8e. Real export: `spotifyExport` replaces `fakeExport` behind the same `ExportPlaylists` type and sends the same progress messages. Turn the 10-playlist limit for local runs into an opt-in setting: `VITE_EXPORT_PLAYLIST_LIMIT` in `web/.env.local`. Unset means all playlists, and when it is set, the progress log says so. Update the "done" text. When a list has fewer or more items than Spotify's `total` (it changed during the export), write a warning in the progress log and carry on. Handle a token that expires mid-export (log in again). Fix known issue: test that a second export after a finished one works. Then do a real export together (Claude can't log in).
    - [x] 8f. Delete the Express app: first tag the last commit that has it (`git tag express-app-final`). Then delete `src/`, `public/`, the committed `dist/`, `config.ts`, the server Vitest project, the root `tsconfig.json` server setup, the server dependencies (express, socket.io, cors, ejs, axios, js-yaml, nodemon, ts-node + their `@types`), the `build:` / `dev` / `start` scripts and the `.gitignore` entries that are no longer needed. Keep the root `index.html` + `CNAME` until step 9. Your own steps in the Spotify dashboard: rotate the client secret (it's no longer used anywhere) and remove the `dev.spotifyexport.com` redirect URI; the `dev.spotifyexport.com` DNS record can go too.
    - [x] 8g. Docs: check that `/privacy` matches what the code actually does (it was written ahead of steps 7 + 8: PKCE login, direct fetch from Spotify, token lifetime, what's in `sessionStorage`), and drop its "ahead of time" comment. In the README, remove the Express run instructions and the fixed known issues, and add the Development Mode limits (owned / collaborative playlists only, max 5 users).
-9. Migrate DNS / update Spotify app redirect URIs; deploy the SPA to GitHub Pages.
-   1. Before go-live: check the Spotify Developer Policy's privacy-policy requirements against the `/privacy` page.
+9. Migrate DNS / update Spotify app redirect URIs; deploy the SPA to GitHub Pages. The DNS already points at Pages (it served the old root `index.html`), so no DNS change is needed.
+   - [x] 9a. Move `CNAME` into `web/public/` so it ends up in the build, and delete the old root `index.html`.
+   - [ ] 9b. Your own steps: in the GitHub repo, rename the default branch `master` to `main` (and check that the `github-pages` environment allows `main`), set Settings → Pages → Source to "GitHub Actions" (before pushing 9a, or the site goes blank) and check that the custom domain + "Enforce HTTPS" are still set. In the Spotify dashboard, add `https://spotifyexport.com/callback` and `https://www.spotifyexport.com/callback` as redirect URIs.
+   - [ ] 9c. After the first deploy: one real login + export on spotifyexport.com.
+   - [ ] 9d. Before go-live: check the Spotify Developer Policy's privacy-policy requirements against the `/privacy` page.
 10. Set up GitHub Actions: lint / test / build → deploy frontend to Pages.
+   - [x] 10a. `.github/workflows/deploy.yml`: lint, type-check, tests and build on every push + pull request; on `main` it also deploys `web/dist` to Pages.
 
 ### Phase B — Optional analytics backend (the AWS / Terraform / Lambda / DynamoDB learning)
 prereq: set up AWS account incl. cost alerts and billshock prevention
