@@ -54,7 +54,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 - **GitHub Actions** for CI/CD: lint/test/build → deploy frontend to Pages, deploy infra via Terraform.
 
 ## Implementation steps
-Phase A is live on spotifyexport.com. Left to do: 9d and 9e. After that, Phase B and Phase C don't depend on each other, and the cross-cutting steps 17–19 come last.
+Phase A is done and live on spotifyexport.com. Next, Phase B and Phase C don't depend on each other, and the cross-cutting steps 17–19 come last.
 
 1. [x] Introduce VItest
 2. [x] Introduce ZOD and add types, add type check as commit hook
@@ -103,7 +103,7 @@ Phase A is live on spotifyexport.com. Left to do: 9d and 9e. After that, Phase B
    - [x] 9d. Check the [Spotify Developer Policy](https://developer.spotify.com/policy) and [Developer Terms](https://developer.spotify.com/terms) (both effective 15 May 2025) against the site. Added to `/privacy`: how to disconnect the app from your Spotify account (Policy I.1.2, Terms V.8), that no one sets cookies (Terms V.12), and that the site isn't affiliated with Spotify (Policy II.1). Added a `/terms` page with the minimum end user terms of Terms V.11, and a line by the export button that logging in means agreeing to them. Left open on purpose:
      - The domain name: Terms VII.1.3 forbids domain names that include "Spotify", and Policy VI.2 app names that start with "Spot". Ignored for now.
      - A private contact address for privacy questions (Terms V.12): left out for now, GitHub issues stay the only contact. See also 12.2.
-   - [ ] 9e. Clean up what's left of the old hosting: check in the AWS console that nothing of the old container setup is still running or billed (container, load balancer, registry, Route 53 zone if DNS isn't there), and delete the `claude/optimistic-meitner-96vwv0` branch on GitHub if it's no longer needed.
+   - [x] 9e. Clean up what's left of the old hosting: the AWS account of the old container setup is deleted, billing info included, and the leftover `claude/optimistic-meitner-96vwv0` branch is gone from GitHub.
 10. Set up GitHub Actions: lint / test / build → deploy frontend to Pages.
    - [x] 10a. `.github/workflows/deploy.yml`: lint, type-check, tests and build on every push + pull request; on `main` it also deploys `web/dist` to Pages.
 
