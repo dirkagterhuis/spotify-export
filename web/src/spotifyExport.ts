@@ -1,6 +1,6 @@
 // The real export: reads the user's playlists from Spotify, turns them into a file and downloads it.
-// Replaces the /spotify-app-callback handler of the Express app (src/index.ts), and sends the same
-// progress messages.
+// Replaces the /spotify-app-callback handler of the Express app (src/index.ts in git tag
+// express-app-final), and sends the same progress messages.
 import { downloadFile, exportFileName } from './downloadFile'
 import { createExportFile, decodeHtmlEntities, type ExportFile } from './exportFile'
 import type { FileType } from './fileType'

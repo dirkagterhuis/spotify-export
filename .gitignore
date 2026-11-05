@@ -1,16 +1,10 @@
 .vscode/
 node_modules
-# Local ertificate files
-*.pem
-.elasticbeanstalk/
-local.yml
-playlists.json
 coverage/
 web/dist/
-.elasticbeanstalk/
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
 # Local overrides of web/.env
 web/.env*.local
+# Secrets of the Express app (removed in step 8f; see the express-app-final tag). Still ignored,
+# so an old copy can't end up in a commit by accident.
+local.yml
+*.pem

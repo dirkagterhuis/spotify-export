@@ -1,5 +1,5 @@
 // Turns the exported playlists into the content of the file the user downloads.
-// Replaces src/functions/generateReturnFile.ts of the Express app.
+// Replaces src/functions/generateReturnFile.ts of the Express app (git tag express-app-final).
 import type { FileType } from './fileType'
 import type { PlaylistItem, PlaylistWithItems } from './spotify/schemas'
 

@@ -1,15 +1,15 @@
+// Only for the config files in the root (vitest.config.mts), so ESLint's type-aware rules and
+// `npm run check:types` cover them too. The app has its own tsconfigs in web/.
 {
   "compilerOptions": {
-    "target": "ES2021",
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "lib": ["ES2021"],
-    "outDir": "dist",
-    "skipLibCheck": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "types": ["vitest/globals"]
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true
   },
-  "exclude": ["web", "dist", "coverage", "node_modules"]
+  "include": ["*.mts"]
 }

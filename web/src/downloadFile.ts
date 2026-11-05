@@ -1,6 +1,7 @@
 // Saves the export file on the user's computer, without a server: the file only exists in the
 // browser's memory, as a Blob, until the browser writes it to the Downloads folder.
-// Replaces the `readyForDownload` handler in public/views/index.html of the Express app.
+// Replaces the `readyForDownload` handler in public/views/index.html of the Express app (git tag
+// express-app-final).
 import type { ExportFile } from './exportFile'
 import type { FileType } from './fileType'
 

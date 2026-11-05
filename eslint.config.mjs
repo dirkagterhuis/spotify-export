@@ -8,7 +8,7 @@ export default [
         languageOptions: {
             parser: tsparser,
             parserOptions: {
-                // Uses the nearest tsconfig per file: the root one for the server, web/ for the SPA.
+                // Uses the nearest tsconfig per file: web/ for the SPA, the root one for configs.
                 projectService: true,
                 tsconfigRootDir: import.meta.dirname,
             },
@@ -32,6 +32,6 @@ export default [
         ...reactHooks.configs.flat.recommended,
     },
     {
-        ignores: ['dist/**', 'web/dist/**', 'coverage/**', 'node_modules/**'],
+        ignores: ['web/dist/**', 'coverage/**', 'node_modules/**'],
     },
 ]

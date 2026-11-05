@@ -1,5 +1,6 @@
 // Reads the user's playlists straight from the Spotify Web API, with the access token from the
-// PKCE login. Replaces the axios calls of the Express app (src/functions/spotifyApiUtils.ts).
+// PKCE login. Replaces the axios calls of the Express app (src/functions/spotifyApiUtils.ts in
+// git tag express-app-final).
 import type { z } from 'zod'
 import {
     ApiErrorSchema,
