@@ -49,11 +49,13 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 - **React SPA (Vite + TypeScript)** replaces the current HTML/EJS + Socket.io frontend. Progress updates are just React state.
 - **No PII stored.** The optional analytics tier keys exports by a *hashed* Spotify id only — no email, no display name. Store as little as possible.
 - **DynamoDB on-demand** for the export-event analytics. Free tier covers 25GB storage + 25 WCU/RCU.
-- **GitHub Pages** for hosting the static frontend (CNAME already set up for spotifyexport.com). Client-side routing uses a `404.html` fallback.
+- **GitHub Pages** for hosting the static frontend (`web/public/CNAME` for spotifyexport.com). Client-side routing uses a `404.html` fallback.
 - **Terraform** to provision API Gateway, Lambda, and DynamoDB.
 - **GitHub Actions** for CI/CD: lint/test/build → deploy frontend to Pages, deploy infra via Terraform.
 
 ## Implementation steps
+Phase A is live on spotifyexport.com. Left to do: 9d and 9e. After that, Phase B and Phase C don't depend on each other, and the cross-cutting steps 17–19 come last.
+
 1. [x] Introduce VItest
 2. [x] Introduce ZOD and add types, add type check as commit hook
 3. [x] Make linting rules more strict
@@ -96,9 +98,10 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 8g. Docs: check that `/privacy` matches what the code actually does (it was written ahead of steps 7 + 8: PKCE login, direct fetch from Spotify, token lifetime, what's in `sessionStorage`), and drop its "ahead of time" comment. In the README, remove the Express run instructions and the fixed known issues, and add the Development Mode limits (owned / collaborative playlists only, max 5 users).
 9. Migrate DNS / update Spotify app redirect URIs; deploy the SPA to GitHub Pages. The DNS already points at Pages (it served the old root `index.html`), so no DNS change is needed.
    - [x] 9a. Move `CNAME` into `web/public/` so it ends up in the build, and delete the old root `index.html`.
-   - [ ] 9b. Your own steps: in the GitHub repo, rename the default branch `master` to `main` (and check that the `github-pages` environment allows `main`), set Settings → Pages → Source to "GitHub Actions" (before pushing 9a, or the site goes blank) and check that the custom domain + "Enforce HTTPS" are still set. In the Spotify dashboard, add `https://spotifyexport.com/callback` and `https://www.spotifyexport.com/callback` as redirect URIs.
-   - [ ] 9c. After the first deploy: one real login + export on spotifyexport.com.
-   - [ ] 9d. Before go-live: check the Spotify Developer Policy's privacy-policy requirements against the `/privacy` page.
+   - [x] 9b. Your own steps: in the GitHub repo, rename the default branch `master` to `main` (and check that the `github-pages` environment allows `main`), set Settings → Pages → Source to "GitHub Actions" (before pushing 9a, or the site goes blank) and check that the custom domain + "Enforce HTTPS" are still set. In the Spotify dashboard, add `https://spotifyexport.com/callback` and `https://www.spotifyexport.com/callback` as redirect URIs.
+   - [x] 9c. After the first deploy: one real login + export on spotifyexport.com.
+   - [ ] 9d. Check the Spotify Developer Policy's privacy-policy requirements against the `/privacy` page (the site is live now, so this is overdue).
+   - [ ] 9e. Clean up what's left of the old hosting: check in the AWS console that nothing of the old container setup is still running or billed (container, load balancer, registry, Route 53 zone if DNS isn't there), and delete the `claude/optimistic-meitner-96vwv0` branch on GitHub if it's no longer needed.
 10. Set up GitHub Actions: lint / test / build → deploy frontend to Pages.
    - [x] 10a. `.github/workflows/deploy.yml`: lint, type-check, tests and build on every push + pull request; on `main` it also deploys `web/dist` to Pages.
 
@@ -191,6 +194,7 @@ Everything runs in the browser: the login with Spotify (Authorization Code + PKC
 - After login redirect, the windows scrolls to the loadingmessages / progress messages.
 - Fixed local development login flow that was broken because Spotify's OAuth rejects localhost as a redirect URI by pointing to dev.spotifyexport.com at 127.0.0.1 via a DNS A record to allow the app to run locally with a mkcert certificate.
 - Rebuilt as a React single-page app (steps 6–8): PKCE login, Spotify API calls and the export file all in the browser, so the Express server, Socket.io, the client secret and the local certificates are gone. Also fixed: a second export after a finished one, HTML entities like `&#x2F;` in names, and CSV escaping of quotes and line breaks.
+- Live on GitHub Pages, deployed by GitHub Actions after lint, type-check, tests and build pass (steps 9–10). The default branch is now `main`.
 
 # Troubleshooting
 - Spotify shows `INVALID_CLIENT: Invalid redirect URI`: the redirect URI isn't registered exactly as sent. Open the app via `http://127.0.0.1:5173` (not `localhost`), and check that `http://127.0.0.1:5173/callback` is in your Spotify app's redirect URIs.
