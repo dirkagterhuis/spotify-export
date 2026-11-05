@@ -21,34 +21,33 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
 │    playlists + tracks                       │
 │  - Progress updates via React state         │
 └──────────┬───────────────────────────────────┘
-           │ HTTPS (optional analytics only)
+           │ HTTPS (optional counting only)
 ┌──────────▼───────────────────────────────────┐
-│  API Gateway + Lambda                        │
+│  API Gateway (HTTP API) + Lambda             │
 │                                              │
 │  POST /exports                               │
-│    → log export event (timestamp,            │
-│      playlist count, format)                 │
+│    → count a finished / failed export        │
+│      (format, day)                           │
 │                                              │
-│  GET  /users/:id/exports                     │
-│    → export history for an anonymous user    │
+│  GET  /stats                                 │
+│    → total exports so far                    │
 └──────────┬───────────────────────────────────┘
            │
 ┌──────────▼───────────────────────────────────┐
-│  DynamoDB (on-demand) — no PII               │
-│  - Exports table: anonymous user id          │
-│    (hashed Spotify id), date, playlist       │
-│    count, format                             │
+│  DynamoDB (on-demand) — no personal data     │
+│  - export-counts: one item per day with      │
+│    counters per format and outcome           │
 └────────────────────────────────────────────────┘
 ```
 
-> The auth path has **zero infrastructure**: PKCE lets the browser complete the OAuth flow with no `client_secret`, so there is nothing server-side to secure. The Lambda / API Gateway / DynamoDB tier exists purely for optional export analytics.
+> The auth path has **zero infrastructure**: PKCE lets the browser complete the OAuth flow with no `client_secret`, so there is nothing server-side to secure. The Lambda / API Gateway / DynamoDB tier exists purely for optional export counts, and never sees Spotify data.
 
 ## Key design decisions
 - **OAuth Authorization Code + PKCE, fully in the browser.** PKCE replaces the static `client_secret` with a per-login proof (a random `code_verifier`; only its SHA-256 hash, the `code_challenge`, is sent to Spotify). This means no secret has to live anywhere and the entire auth flow — including the token exchange — runs client-side. No auth server, no Socket.io.
 - **Browser calls Spotify API directly** using the user's access token — no server timeout concerns. The access token lasts ~1h, which covers a one-shot export, so no refresh token is stored in the browser.
 - **React SPA (Vite + TypeScript)** replaces the current HTML/EJS + Socket.io frontend. Progress updates are just React state.
-- **No PII stored.** The optional analytics tier keys exports by a *hashed* Spotify id only — no email, no display name. Store as little as possible.
-- **DynamoDB on-demand** for the export-event analytics. Free tier covers 25GB storage + 25 WCU/RCU.
+- **No personal data stored.** The optional counting tier stores daily counters per format and outcome only: no Spotify id (not even hashed, see Phase B for why), no Spotify data, no IP addresses.
+- **DynamoDB on-demand** for the export counts: one small item per day, so the cost stays at cents at most.
 - **GitHub Pages** for hosting the static frontend (`web/public/CNAME` for spotifyexport.com). Client-side routing uses a `404.html` fallback.
 - **Terraform** to provision API Gateway, Lambda, and DynamoDB.
 - **GitHub Actions** for CI/CD: lint/test/build → deploy frontend to Pages, deploy infra via Terraform.
@@ -108,16 +107,52 @@ Phase A is done and live on spotifyexport.com. Next, Phase B and Phase C don't d
    - [x] 10a. `.github/workflows/deploy.yml`: lint, type-check, tests and build on every push + pull request; on `main` it also deploys `web/dist` to Pages.
 
 ### Phase B — Optional analytics backend (the AWS / Terraform / Lambda / DynamoDB learning)
-prereq: set up AWS account incl. cost alerts and billshock prevention
-B.0: run a thorough security check: see 19.2
-11. Set up Terraform.
-12. Set up DynamoDB Exports table (anonymous hashed Spotify id, date, playlist count, format — no PII).
-    1. Update the `/privacy` page before this goes live: a hashed Spotify id is pseudonymous personal data under GDPR, so state what is logged, the legal basis (likely legitimate interest), the retention period, and that AWS stores it (region).
-    2. Add a private contact channel for privacy requests (e.g. deletion), since GitHub issues are public: a forwarding address like `privacy@spotifyexport.com` via the registrar or Cloudflare Email Routing, not a form (that would need a third-party service).
-13. Create Lambda function to log export events + return history.
-    1. Use esbuild for bundling.
-14. Wire up API Gateway in front of Lambda (`POST /exports`, `GET /users/:id/exports`).
-15. Extend the GitHub Actions pipeline to `terraform apply` the infra.
+Goal: count exports per day and per format, and show a total on the site ("1,234 playlists exported so far"). The point is learning AWS, Terraform, Lambda and DynamoDB; the site works the same without it, and an outage of the API must never break an export.
+
+Design change from the first plan (hashed Spotify id, playlist count, `GET /users/:id/exports` history), because of two rules found in 9d:
+- Spotify's Developer Policy III.13 forbids analysing Spotify content or the service for usage statistics, user metrics or user profiles, and Terms V.7 allows Spotify personal data only as long as needed to provide the app. A per-user export history keyed by a Spotify id, or playlist counts, falls under both.
+- A hashed Spotify id is pseudonymous personal data under GDPR. That would need a legal basis, a retention period and a private contact for deletion requests (left out in 9d).
+
+So the API only counts **site events**: that an export finished or failed, in which format, on which day. No Spotify id, no Spotify data, no IP address, nothing stored on the visitor's device. No personal data means no GDPR obligations beyond saying so on `/privacy`, and no consent banner. It still covers every AWS piece of the original plan.
+
+Region: `eu-west-1` (Ireland) for everything, so the data stays in the EU.
+
+- [x] B.0. Security check of this plan (threat model, before any AWS work). The API is public and has no login: anyone can call it, not only the site. What can go wrong, and what the plan does about it (the steps below include these):
+  - **Fake counts.** Anyone can `curl` `POST /exports` and raise the counters. There's no way to prove a request comes from a real export without sending the Spotify token to the API, which this design avoids on purpose. Accepted: the total on the site is best-effort, and the throttle limits how fast it can be inflated. Only the fixed enum values are accepted, so nothing anyone sends ends up on the page as text.
+  - **Denial of wallet (the real risk).** Flooding the API costs money, not data. AWS has no hard spending cap, so the plan stacks limits: stage throttling (5 requests/s, burst 10; the default is 10,000/s), reserved concurrency on the Lambdas, a budget alert, and a kill switch that switches the API off at €X (B.1, 14d). Rough worst case with the throttle at 5/s all month long: about 13 million requests, about €25 a month (API Gateway ~€13, DynamoDB writes ~€8, Lambda ~€4; check the pricing pages for `eu-west-1`). Billing data lags by up to about 12 hours, so the kill switch stops spending at roughly €X plus half a day.
+  - **Personal data in logs.** API Gateway and Lambda see the caller's IP address. No access logging on the API, handlers never log the incoming event (it holds `requestContext.http.sourceIp`), errors are logged as a message without the event, and log groups keep 14 days. `/privacy` says AWS briefly processes IP addresses to deliver requests, and that they aren't stored.
+  - **Spotify data leaking into the API.** The body is a strict zod schema of two enums (`.strict()`, unknown fields rejected), and the frontend sends no error text (error messages can contain playlist names). Bodies over 1 kB are rejected before parsing.
+  - **CI credentials.** OIDC instead of stored keys. Two roles: a read-only `plan` role that pull requests can assume, and an `apply` role that only `refs/heads/main` of `dirkagterhuis/spotify-export` can assume (the trust policy checks `sub` and `aud`). The apply role gets a policy scoped to resources named `spotify-export-*`, not `AdministratorAccess`, and `iam:PassRole` only for the Lambda roles. Pull requests from forks get no OIDC token from GitHub, so they can't assume either role.
+  - **Terraform state.** It holds resource details, not secrets (there are none). The bucket blocks public access, is versioned and encrypted, and has a policy that denies non-TLS requests. Never put secrets in Terraform variables.
+  - **Supply chain.** Third-party GitHub Actions pinned to commit SHAs, Dependabot for actions and npm, `npm ci` from the lockfile. The Lambda bundle only contains zod and the handler; the AWS SDK comes from the runtime.
+  - **The AWS account itself.** Root with MFA and no access keys, day-to-day access via IAM Identity Center, alternate (security / billing) contacts set, and CloudTrail's free 90-day event history to look back on who changed what.
+  - **The browser side.** Requests use `credentials: 'omit'` (no cookies), the CSP `connect-src` allows only Spotify and the API's domain, and a slow or failing API never delays or breaks an export.
+  - **Accidental deletes.** Deletion protection on the DynamoDB table and the state bucket, so a wrong `terraform destroy` or a refactor can't wipe them.
+- [ ] B.1. AWS account (your own steps, Claude can't do these): a new account, MFA on the root user, then stop using root. An admin user via IAM Identity Center for yourself, used through `aws sso login` (no long-lived access keys on your laptop). Set the alternate security and billing contacts. Billshock prevention: an AWS Budget of €1 a month with email alerts at 50% / 100% / forecast 100%, Cost Anomaly Detection on, and the Free Tier usage alerts on. Check the current free tier rules for new accounts (they changed in July 2025) and write down what applies.
+  - **Decide the shut-down amount: €X = ___.** When the month's actual cost passes €X, the kill switch (14d) switches the API off. Pick it above the normal bill (cents) and below what would hurt; the worst case under the throttle is about €25 a month (see B.0), so anything from €5 to €20 makes sense.
+11. Set up Terraform (in `infra/`).
+   - [ ] 11a. Install Terraform (pinned version in `infra/.terraform-version` or `required_version`), the AWS provider pinned in `versions.tf`, `terraform fmt` + `validate` as npm scripts. Explain providers, resources, state and plan/apply.
+   - [ ] 11b. Remote state: a small bootstrap config (`infra/bootstrap/`, local state, applied once by hand) that creates an S3 bucket for the state: versioning on, public access blocked, encrypted, a bucket policy that denies non-TLS requests, and `prevent_destroy`. The main config uses it as its S3 backend with `use_lockfile = true` (S3-native locking, so no DynamoDB lock table).
+   - [ ] 11c. Tags on everything (`project = spotify-export`) via the provider's `default_tags`, so the bill can be filtered per project.
+12. DynamoDB (in Terraform).
+   - [ ] 12a. One table `export-counts`, on-demand billing. Key: `pk` = the day (`2026-11-05`). Attributes: counters like `json_done`, `csv_done`, `failed`, raised with an atomic `UpdateItem ... ADD`, so there is one small item per day instead of one per export. Point-in-time recovery off (counts can be lost without harm), deletion protection on. Explain partition keys, on-demand vs provisioned, and why a counter beats an event log here.
+   - [ ] 12b. Decide on a total: either sum the days when reading (fine for years of daily items), or keep a `pk = total` item updated in the same transaction. Pick one and write down why.
+13. Lambda (code in `api/`, a new Vitest project next to `web`).
+   - [ ] 13a. Handler for `POST /exports`: body validated with a strict zod schema (`{ format: 'json' | 'csv', outcome: 'done' | 'failed' }`, unknown fields rejected, bodies over 1 kB rejected before parsing), one `UpdateItem` with the AWS SDK v3 DynamoDB client, `204` on success, `400` on a bad body. Handler for `GET /stats`: the totals, with a `Cache-Control` header so browsers don't ask every time. The DynamoDB client injectable like `fetchFn` in `web/`, tested with a fake.
+   - [ ] 13b. Bundle with esbuild into one file per function (the SDK v3 is in the Node runtime, so mark it external). Use the newest Node.js Lambda runtime that matches `.nvmrc` (check the list; `nodejs24.x` if available).
+   - [ ] 13c. Terraform: the function(s), an IAM role per function with only `dynamodb:UpdateItem` or `dynamodb:GetItem` / `Query` on that one table, a CloudWatch log group with 14 days retention (the default is forever), and a reserved concurrency limit (e.g. 5) as a cost cap. Handlers never log the incoming event (it holds the caller's IP address), only error messages.
+14. API Gateway (HTTP API, cheaper and simpler than a REST API).
+   - [ ] 14a. Routes `POST /exports` and `GET /stats` to the Lambdas, CORS limited to `https://spotifyexport.com` (and `http://127.0.0.1:5173` for development), stage throttling (e.g. 5 requests/s, burst 10). No access logging, so no IP addresses are stored. Explain why CORS doesn't stop abuse (only browsers obey it), and that throttling + reserved concurrency + the budget alert are the real protection.
+   - [ ] 14b. Try it end to end with `curl`: a good body, a bad body, a wrong origin, and more requests than the throttle allows.
+   - [ ] 14c. Optional: `api.spotifyexport.com` as a custom domain (ACM certificate + a DNS record at the registrar). Fine to skip and use the `execute-api` URL.
+   - [ ] 14d. Kill switch at €X (decided in B.1): an AWS Budget on actual cost at €X that notifies an SNS topic, which triggers a small Lambda that sets the reserved concurrency of both API Lambdas to 0 and the stage throttling to 0. From then on every call fails fast and the site carries on without counts. Lambda and DynamoDB costs stop; check on the API Gateway pricing page whether throttled requests are still billed, and if they are, have the kill switch disable the API's default endpoint as well. You get an email, and switching back on is a `terraform apply` (which resets the concurrency). Test it once by publishing a fake message to the topic. Explain why this isn't a hard cap (billing lag) and why it stops the Lambdas rather than deleting anything.
+15. Wire it up and deploy from CI.
+   - [ ] 15a. GitHub Actions to AWS via OIDC, no AWS keys in GitHub secrets. Two roles in Terraform: `plan` (read-only, pull requests of this repo) and `apply` (only `refs/heads/main`, a policy scoped to `spotify-export-*` resources, `iam:PassRole` only for the Lambda roles). The trust policies check `aud` and `sub`.
+   - [ ] 15b. Workflow: on pull requests `terraform plan` (output in the job summary); on `main` build the Lambdas, then `terraform apply`, before the Pages deploy. Pin the third-party actions to commit SHAs and add Dependabot for actions and npm.
+   - [ ] 15c. Frontend: after an export finishes or fails, `fetch(..., { method: 'POST', keepalive: true, credentials: 'omit' })` to `VITE_API_URL` with only the format and outcome (never error text), fire and forget: errors are swallowed and never shown, and with `VITE_API_URL` unset (local runs, forks) nothing is sent. Show the total from `GET /stats` on the home page, and nothing if it fails. Tests with a fake fetch.
+   - [ ] 15d. Update `/privacy` (what is counted, that it's not personal data, AWS in Ireland, that AWS briefly processes IP addresses to deliver requests but they aren't stored, how long the logs are kept) and the privacy banner text if "no tracking" no longer fits. A Content Security Policy `<meta>` tag (19.2) that allows the API's domain next to Spotify's.
+   - [ ] 15e. Check the bill after a week, and that the budget alert and the kill switch work.
+   - [ ] 15f. Go through B.0 again against what was actually built, before announcing the counts anywhere.
 
 ### Phase C — Bring your own Spotify app
 16. Let visitors export with their own Spotify app. Since February 2026, a Spotify app in Development Mode accepts at most 5 users: the app's owner plus the users added by hand under *User Management* in the dashboard. Extended Quota Mode, which lifts that limit, is only granted to organisations (since May 2025). So with this site's own client id, only the people on that list can export.
@@ -141,7 +176,7 @@ B.0: run a thorough security check: see 19.2
        - CSV formula injection: a playlist or track name that starts with `=`, `+`, `-` or `@` can run as a formula in Excel. Decide whether to prefix those with `'`.
        - A Content Security Policy for GitHub Pages (a `<meta>` tag, since Pages can't set headers), allowing only `api.spotify.com` and `accounts.spotify.com` to be called.
        - Dependencies: `npm audit`, remove what's unused, check the GitHub Actions permissions and pinned versions.
-       - Lambda / API Gateway (Phase B): input validation, CORS limited to the site's origin, rate limiting, least-privilege IAM, no PII in logs.
+       - Lambda / API Gateway (Phase B): input validation, CORS limited to the site's origin, rate limiting, least-privilege IAM, no PII in logs, OIDC role for CI limited to this repo.
     3. Check `/privacy` against what the code actually does, once more.
 
 ## Future features (after architecture migration)
