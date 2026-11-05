@@ -5,7 +5,7 @@ import type { PlaylistItem, PlaylistWithItems } from './spotify/schemas'
 
 export type ExportFile = {
     content: string
-    // For the Blob in step 8d, so the browser and the OS know what kind of file it is.
+    // For the Blob in downloadFile, so the browser and the OS know what kind of file it is.
     mimeType: string
 }
 
