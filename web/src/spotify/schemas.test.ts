@@ -95,6 +95,28 @@ describe('PlaylistItemPageSchema', () => {
         expect(page.items[0].item).toEqual(episode)
     })
 
+    it('accepts an episode in the track-like shape, with the show under album', () => {
+        const trackLikeEpisode = {
+            type: 'episode',
+            id: 'ep1',
+            name: 'Episode One',
+            album: { name: 'The Show' },
+            artists: [{ name: 'The Publisher' }],
+            href: 'https://api.spotify.com/v1/episodes/ep1',
+        }
+        const page = PlaylistItemPageSchema.parse(
+            itemPage({ is_local: false, item: trackLikeEpisode })
+        )
+
+        expect(page.items[0].item).toEqual({
+            type: 'episode',
+            id: 'ep1',
+            name: 'Episode One',
+            show: { name: 'The Show' },
+            href: 'https://api.spotify.com/v1/episodes/ep1',
+        })
+    })
+
     it('accepts an item that is no longer available', () => {
         const page = PlaylistItemPageSchema.parse(itemPage({ is_local: false, item: null }))
 

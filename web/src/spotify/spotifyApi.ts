@@ -71,9 +71,10 @@ export async function spotifyGet<Schema extends z.ZodType>(
 
         const result = schema.safeParse(await response.json())
         if (!result.success) {
-            throw new Error(`Spotify sent data the export doesn't understand, from ${url}`, {
-                cause: result.error,
-            })
+            throw new Error(
+                `Spotify sent data the export doesn't understand (${describeIssues(result.error)}), from ${url}`,
+                { cause: result.error }
+            )
         }
         return result.data
     }
@@ -140,9 +141,22 @@ async function getAllPages<Item>(
         items.push(...page.items)
         // The last page's count is the most recent one.
         total = page.total
-        url = page.next
+        url = page.next === null ? null : withFirstPageParams(page.next, firstUrl)
     }
     return { items, total }
+}
+
+// Spotify's `next` link can lose parameters of the first request: it turns
+// `additional_types=track,episode` into `additional_types=track`, and then sends episodes in an
+// older, track-like shape. So put the first request's parameters back, apart from the offset.
+function withFirstPageParams(nextUrl: string, firstUrl: string): string {
+    const url = new URL(nextUrl)
+    for (const [key, value] of new URL(firstUrl).searchParams) {
+        if (key !== 'offset') {
+            url.searchParams.set(key, value)
+        }
+    }
+    return url.toString()
 }
 
 // Spotify says how many seconds to wait in the Retry-After header. If it's missing, wait a second.
@@ -171,6 +185,15 @@ async function toApiError(response: Response): Promise<SpotifyApiError> {
     const body = ApiErrorSchema.safeParse(await response.json().catch(() => undefined))
     const reason = body.success ? body.data.error.message : `HTTP ${status}`
     return new SpotifyApiError(`Spotify API error: ${reason}`, status)
+}
+
+// Which fields didn't match, e.g. `items.12.item.album: expected object, received null`, so a bug
+// report says what to fix. The first three are enough: one odd item usually fails several ways.
+function describeIssues(error: z.ZodError): string {
+    return error.issues
+        .slice(0, 3)
+        .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+        .join('; ')
 }
 
 function wait(ms: number): Promise<void> {

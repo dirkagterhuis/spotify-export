@@ -141,7 +141,7 @@ describe('spotifyGet', () => {
         const fetchFn = fakeFetch(jsonResponse({ name: 42 }))
 
         await expect(spotifyGet(url, 'token', NameSchema, { fetchFn })).rejects.toThrow(
-            "Spotify sent data the export doesn't understand"
+            "Spotify sent data the export doesn't understand (name: Invalid input: expected string, received number)"
         )
     })
 })
@@ -199,6 +199,24 @@ describe('getPlaylistItems', () => {
         const items = await getPlaylistItems('token', 'pl1', { fetchFn })
 
         expect(items.items.map((entry) => entry.item?.name)).toEqual(['a', 'b'])
+    })
+
+    it("keeps asking for episodes on later pages, also when Spotify's next link drops them", async () => {
+        const nextUrl =
+            'https://api.spotify.com/v1/playlists/pl1/items?offset=50&limit=50&additional_types=track&fields=x&locale=en'
+        const fetchFn = fakeFetch(
+            jsonResponse({ items: [playlistItem('a')], total: 2, next: nextUrl }),
+            jsonResponse({ items: [playlistItem('b')], total: 2, next: null })
+        )
+
+        await getPlaylistItems('token', 'pl1', { fetchFn })
+
+        const secondUrl = new URL(fetchFn.mock.calls[1][0] as string)
+        expect(secondUrl.searchParams.get('offset')).toBe('50')
+        expect(secondUrl.searchParams.get('additional_types')).toBe('track,episode')
+        expect(secondUrl.searchParams.get('fields')).toMatch(/^next,total,items/)
+        // Parameters only Spotify added stay as they are.
+        expect(secondUrl.searchParams.get('locale')).toBe('en')
     })
 
     it("returns Spotify's latest total, also when it no longer matches the items", async () => {

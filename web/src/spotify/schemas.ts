@@ -17,13 +17,21 @@ const TrackSchema = z.object({
 })
 
 // Playlists can hold podcast episodes too. They have a show instead of an album and artists.
-const EpisodeSchema = z.object({
-    type: z.literal('episode'),
-    id: z.string(),
-    name: z.string(),
-    show: z.object({ name: z.string() }),
-    href: z.string(),
-})
+// Spotify sometimes sends an episode in an older, track-like shape, with the show's name under
+// `album` (seen when `additional_types` lacks `episode`). Accept both, and always give a `show`.
+const EpisodeSchema = z
+    .object({
+        type: z.literal('episode'),
+        id: z.string(),
+        name: z.string(),
+        show: z.object({ name: z.string() }).optional(),
+        album: z.object({ name: z.string() }).optional(),
+        href: z.string(),
+    })
+    .transform(({ show, album, ...episode }) => ({
+        ...episode,
+        show: { name: show?.name ?? album?.name ?? '' },
+    }))
 
 // One entry of a playlist. Spotify renamed `track` to `item`, since it isn't always a track.
 const PlaylistItemSchema = z.object({
