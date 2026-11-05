@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type KeyboardEvent } from 'react'
 import type { ExportStatus } from '../exportStatus'
 
 type ProgressLogProps = {
@@ -25,8 +25,17 @@ export function ProgressLog({ status, messages }: ProgressLogProps) {
     const summary = statusSummary(status)
 
     // role="log" makes screen readers announce new lines as they are appended.
+    // tabIndex={0} lets the box take focus, by clicking in it or with Tab, so it gets the key presses
+    // below. It also lets keyboard users scroll it with the arrow keys.
     return (
-        <div ref={logRef} role="log" aria-label="Export progress" className="progress-log">
+        <div
+            ref={logRef}
+            role="log"
+            aria-label="Export progress"
+            className="progress-log"
+            tabIndex={0}
+            onKeyDown={selectAllInLog}
+        >
             <ul>
                 {/* Index keys are fine here: lines are only ever appended, never reordered. */}
                 {messages.map((message, index) => (
@@ -36,6 +45,15 @@ export function ProgressLog({ status, messages }: ProgressLogProps) {
             {summary && <p className={`progress-log-summary ${status.kind}`}>{summary}</p>}
         </div>
     )
+}
+
+// Ctrl+A (Cmd+A on a Mac) in the box selects only the log, to copy it, instead of the whole page.
+// preventDefault stops the browser's own select-all; then select the box's content ourselves.
+function selectAllInLog(event: KeyboardEvent<HTMLDivElement>) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+        event.preventDefault()
+        window.getSelection()?.selectAllChildren(event.currentTarget)
+    }
 }
 
 // The switch narrows `status` per case, so `status.error` only type-checks under 'failed'.
