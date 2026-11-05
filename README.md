@@ -108,10 +108,19 @@ prereq: set up AWS account incl. cost alerts and billshock prevention
 14. Wire up API Gateway in front of Lambda (`POST /exports`, `GET /users/:id/exports`).
 15. Extend the GitHub Actions pipeline to `terraform apply` the infra.
 
+### Phase C — Bring your own Spotify app
+16. Let visitors export with their own Spotify app. Since February 2026, a Spotify app in Development Mode accepts at most 5 users: the app's owner plus the users added by hand under *User Management* in the dashboard. Extended Quota Mode, which lifts that limit, is only granted to organisations (since May 2025). So with this site's own client id, only the people on that list can export.
+    1. First check in the Spotify dashboard which mode this site's app is in, and its usage numbers. If it already has Extended Quota (approved under the old rules), this step isn't needed. Also check the current rules on Spotify's quota modes page, since the numbers above are from memory.
+    2. Explain the limit on the site in plain language, before the export button: what the limit is, that it's Spotify's rule, and the two ways around it (ask to be added to the list, or use your own Spotify app).
+    3. A how-to on the site: create a Spotify app, add `https://spotifyexport.com/callback` as its redirect URI, copy its client id. Mention what Spotify requires of the app's owner (Premium, at the time of writing).
+    4. A field for the visitor's client id: check its format (32 hex characters), use it for the login instead of `VITE_SPOTIFY_CLIENT_ID`, and remember it in the browser with a way to forget it. It isn't a secret, so the browser may keep it.
+    5. A clear message when Spotify refuses a user who isn't on the app's list, pointing to the how-to.
+    6. Update `/privacy` (the client id stored in the browser) and the README (running locally with your own app is the other way around the limit).
+
 ### Cross-cutting
-16. Add versioning based on commit messages.
-17. Remove unnecessary comments: many were added to explain concepts while learning (React, PKCE, zod). Keep only the ones that explain a non-obvious why.
-18. Thorough review of the whole codebase, as the last step.
+17. Add versioning based on commit messages.
+18. Remove unnecessary comments: many were added to explain concepts while learning (React, PKCE, zod). Keep only the ones that explain a non-obvious why.
+19. Thorough review of the whole codebase, as the last step.
     1. Code review: correctness, error handling, dead code, test gaps (`/code-review`), and whether the structure still makes sense now that everything is in place.
     2. Security review (`/security-review`), at least:
        - Access token: only in memory, never in `localStorage`, URLs or logs; the login code and state are removed from the URL and `sessionStorage` after use.
