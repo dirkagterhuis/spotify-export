@@ -1,7 +1,7 @@
 import { Section } from '../components/Section'
 
-// Describes the app as it works once PKCE (step 7) and client-side fetching (step 8) land, which is
-// also when this SPA goes live. Revisit when the optional analytics backend (Phase B) is added.
+// Keep this in line with what the code does. Revisit for the analytics backend (Phase B) and for
+// visitors' own Spotify apps (Phase C), which stores a client id in the browser.
 export function PrivacyPage() {
     return (
         <>
@@ -16,8 +16,20 @@ export function PrivacyPage() {
                     You log in on Spotify's own page; this site never sees your password. Spotify
                     then gives your browser a temporary access token that can only read your
                     playlists (the <code>playlist-read-private</code> permission). Your browser uses
-                    it to fetch your playlists directly from Spotify and builds the export file on
-                    your own device. The token expires after an hour.
+                    it to fetch your playlists directly from Spotify, builds the export file on your
+                    own device and saves it there. Nothing is uploaded anywhere.
+                </p>
+                <p>
+                    The token is only kept in the page's memory, never saved: reloading the page or
+                    closing the tab forgets it. It expires after an hour anyway.
+                </p>
+            </Section>
+            <Section title="Spotify's list of users">
+                <p>
+                    Spotify only lets this site's Spotify app be used by a few people, whom the site
+                    owner adds by hand in Spotify's developer dashboard. To be added, you share the
+                    name and the email address of your Spotify account with the owner, who enters
+                    them there. They are used for nothing else, and removed when you ask.
                 </p>
             </Section>
             <Section title="What is stored in your browser">
@@ -30,7 +42,7 @@ export function PrivacyPage() {
                     <li>whether you dismissed the privacy notice;</li>
                     <li>
                         while you log in, two one-time random values that protect the login against
-                        tampering.
+                        tampering. They are deleted as soon as you are back from Spotify.
                     </li>
                 </ul>
             </Section>

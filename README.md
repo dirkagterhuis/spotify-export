@@ -1,10 +1,11 @@
 # spotifyexport.com
-This application allows users to export playlists from their Spotify account. Pushing a button will:
-1. Authorize the users' Spotify Account to read their playslists through an OAuth 2.0 flow.
-2. Retrieve all playlists. 
-3. Per playlist, retrieve all tracks. 
+This application allows users to export playlists from their Spotify account to a json or csv file. Pushing a button will:
+1. Log in to Spotify (OAuth 2.0 Authorization Code + PKCE) with permission to read your playlists.
+2. Retrieve all playlists.
+3. Per playlist, retrieve all tracks and episodes.
+4. Save them as one file on your device.
 
-The application is built in Typescript and is currently hosted on AWS. You can also clone this repository and run it from there; see the 'How to' section on this page. 
+It's a React + TypeScript single-page app that does all of this in the browser: there is no server. It goes live on GitHub Pages in step 9. You can also clone this repository and run it yourself; see [How to](#how-to). Spotify limits who can use it, see [Known issues and limits](#known-issues-and-limits).
 
 # Architecture plan
 
@@ -92,7 +93,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 8d. Download in the browser: `Blob` + `URL.createObjectURL` + a temporary `<a download>`, the same timestamped file name as before, and revoke the URL afterwards.
    - [x] 8e. Real export: `spotifyExport` replaces `fakeExport` behind the same `ExportPlaylists` type and sends the same progress messages. Turn the 10-playlist limit for local runs into an opt-in setting: `VITE_EXPORT_PLAYLIST_LIMIT` in `web/.env.local`. Unset means all playlists, and when it is set, the progress log says so. Update the "done" text. When a list has fewer or more items than Spotify's `total` (it changed during the export), write a warning in the progress log and carry on. Handle a token that expires mid-export (log in again). Fix known issue: test that a second export after a finished one works. Then do a real export together (Claude can't log in).
    - [x] 8f. Delete the Express app: first tag the last commit that has it (`git tag express-app-final`). Then delete `src/`, `public/`, the committed `dist/`, `config.ts`, the server Vitest project, the root `tsconfig.json` server setup, the server dependencies (express, socket.io, cors, ejs, axios, js-yaml, nodemon, ts-node + their `@types`), the `build:` / `dev` / `start` scripts and the `.gitignore` entries that are no longer needed. Keep the root `index.html` + `CNAME` until step 9. Your own steps in the Spotify dashboard: rotate the client secret (it's no longer used anywhere) and remove the `dev.spotifyexport.com` redirect URI; the `dev.spotifyexport.com` DNS record can go too.
-   - [ ] 8g. Docs: check that `/privacy` matches what the code actually does (it was written ahead of steps 7 + 8: PKCE login, direct fetch from Spotify, token lifetime, what's in `sessionStorage`), and drop its "ahead of time" comment. In the README, remove the Express run instructions and the fixed known issues, and add the Development Mode limits (owned / collaborative playlists only, max 5 users).
+   - [x] 8g. Docs: check that `/privacy` matches what the code actually does (it was written ahead of steps 7 + 8: PKCE login, direct fetch from Spotify, token lifetime, what's in `sessionStorage`), and drop its "ahead of time" comment. In the README, remove the Express run instructions and the fixed known issues, and add the Development Mode limits (owned / collaborative playlists only, max 5 users).
 9. Migrate DNS / update Spotify app redirect URIs; deploy the SPA to GitHub Pages.
    1. Before go-live: check the Spotify Developer Policy's privacy-policy requirements against the `/privacy` page.
 10. Set up GitHub Actions: lint / test / build → deploy frontend to Pages.
@@ -143,27 +144,28 @@ B.0: run a thorough security check: see 19.2
   - Analytics that store or read anything on the device (cookies, ids) need opt-in consent under the EU ePrivacy rules, i.e. a real consent banner. A cookieless, IP-anonymising setup avoids that; update `/privacy` either way.
 - Add tooltips to explain json and csv file types
 
-# Known issues
-- If you click the button again after retrieving playlists, you get an error.
-- CSV's contain weird unicode like characters, e.g. `&#x2F;` instead of `/`.
+# Known issues and limits
+These come from Spotify's rules for apps in Development Mode (see the [February 2026 migration guide](https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide)):
+- **At most 5 users.** Only the owner of the Spotify app and the users added under *User Management* in the Spotify dashboard can export. Anyone else can run the app with their own Spotify app, see [How to](#how-to). Step 16 makes that possible on the site itself.
+- **Only the tracks of playlists you own or collaborate on.** The file lists the playlists you only follow too, without their tracks, and says why (`items_skipped` in json, the `playlist tracks skipped because` column in csv).
 
 # How to
-The repo holds two apps while the migration is in progress: the new React SPA in `web/`, and the old Express + Socket.io app in `src/` + `public/`, which keeps the live export working until step 8 replaces it.
+The app lives in `web/`. The Express + Socket.io app it replaced was removed in step 8f; the git tag `express-app-final` points at its last version.
 
 ## Prerequisites
 - Node.js 24.16 or newer (see `.nvmrc`). With a version manager: `nvm use` (macOS/Linux) or `nvm install 24.16.0` / `fnm use` (Windows, via [nvm-windows](https://github.com/coreybutler/nvm-windows) or [fnm](https://github.com/Schniz/fnm)).
 - `npm install`. This also installs the git hooks (lefthook), see [Checks and commits](#checks-and-commits).
 
-## Run the React app (`web/`)
+## Run the app
 Everything runs in the browser: the login with Spotify (Authorization Code + PKCE), reading the playlists and creating the file. No client secret, certificates or server needed.
 
 ### Spotify app setup (once)
-- Create an app on [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard), or reuse the one of the Express app.
+- Create an app on [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard).
 - Add these redirect URIs to the app. They must match exactly, including the port, and must use `127.0.0.1`: Spotify only allows plain `http` for loopback IP addresses, not for `localhost`.
   - `http://127.0.0.1:5173/callback` for `npm run web:dev`
   - `http://127.0.0.1:4173/callback` for `npm run web:preview`
 - The app's client id is in [web/.env](web/.env), committed on purpose: it isn't a secret, every login URL shows it. To use your own Spotify app, put `VITE_SPOTIFY_CLIENT_ID=<your client id>` in `web/.env.local` (git-ignored), which overrides it. Never put a client secret in either file: everything in them ends up in the browser bundle.
-- In development mode, a Spotify app only accepts logins from the users added under *User Management* in the dashboard.
+- In Development Mode, a Spotify app only accepts the logins of its owner and of the users added under *User Management* in the dashboard (at most 5), see [Known issues and limits](#known-issues-and-limits).
 - To try an export without waiting for all your playlists, put `VITE_EXPORT_PLAYLIST_LIMIT=10` in `web/.env.local`: it exports only the first 10, and the progress log says so. Leave it out to export all of them. Restart `npm run web:dev` after changing a `.env` file.
 
 ### Commands
@@ -172,31 +174,9 @@ Everything runs in the browser: the login with Spotify (Authorization Code + PKC
 - `npm run web:preview`: serves that build on [http://127.0.0.1:4173](http://127.0.0.1:4173), to check it before deploying.
 
 ## Checks and commits
-- `npm test` runs Vitest in watch mode (`npm run test:run` for a single run, `npm run test:coverage` for coverage). There are two projects: `server` (Node) for `src/` and `web` (jsdom) for the SPA; run one with e.g. `npm test -- --project web`.
-- `npm run lint` (ESLint), `npm run check:types` (both tsconfigs), `npm run format` (Prettier).
+- `npm test` runs Vitest in watch mode (`npm run test:run` for a single run, `npm run test:coverage` for coverage). The tests run in jsdom, a browser environment in Node. The config in the root is a list of Vitest projects, with only `web` in it for now.
+- `npm run lint` (ESLint), `npm run check:types` (the app's tsconfigs in `web/`, and the root one for the config files), `npm run format` (Prettier).
 - Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat: ...`, `fix: ...`, `docs: ...`), enforced by commitlint. The pre-commit hook formats and lints staged files and type-checks the project.
-
-## Run the Express app (until step 8)
-You'll need a Spotify app, which you can create on [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard).
-
-- Save your Spotify app's `Client Id` and `Client Secret` in `local.yml` (git-ignored):
-```yml
-localSpotifyAppClientId: "INSERT_CLIENT_ID"
-localSpotifyAppClientSecret: "INSERT_CLIENT_SECRET"
-```
-- Spotify rejects `localhost` redirect URIs and requires HTTPS, so the app runs on `dev.spotifyexport.com`, a DNS A record pointing at 127.0.0.1. Create a trusted certificate for it with [mkcert](https://github.com/FiloSottile/mkcert), in the project root:
-```bash
-winget install FiloSottile.mkcert   # Windows; on macOS: brew install mkcert
-mkcert -install                     # installs a local CA; asks for confirmation or your system password
-mkcert dev.spotifyexport.com        # creates dev.spotifyexport.com.pem + dev.spotifyexport.com-key.pem
-```
-- Add `https://dev.spotifyexport.com:8000/spotify-app-callback` to the redirect URIs of your Spotify app.
-- `npm run dev` starts the server on [https://dev.spotifyexport.com:8000](https://dev.spotifyexport.com:8000). From there, you can run a real export.
-
-### Build and deploy
-- `npm run build:`. Note the trailing colon: that is the script's actual name, which is why `npm run build` says `Missing script: "build"`.
-- Push to AWS codecommit repo.
-- `eb deploy`
 
 # Changelog
 - Converted to Typescript.
@@ -205,9 +185,10 @@ mkcert dev.spotifyexport.com        # creates dev.spotifyexport.com.pem + dev.sp
 - Support .csv file format, escape `,` in e.g. track names.
 - Added a timeout for playlists with > 50 items to adhere to the rate limiting enforced by Spotify.
 - After login redirect, the windows scrolls to the loadingmessages / progress messages.
-- Fixed local development login flow that was broken because Spotify's OAuth rejects localhost as a redirect URI by pointing to dev.spotifyexport.com at 127.0.0.1 via a DNS A record to allow the app to run locally with a mkcert certificate. 
+- Fixed local development login flow that was broken because Spotify's OAuth rejects localhost as a redirect URI by pointing to dev.spotifyexport.com at 127.0.0.1 via a DNS A record to allow the app to run locally with a mkcert certificate.
+- Rebuilt as a React single-page app (steps 6–8): PKCE login, Spotify API calls and the export file all in the browser, so the Express server, Socket.io, the client secret and the local certificates are gone. Also fixed: a second export after a finished one, HTML entities like `&#x2F;` in names, and CSV escaping of quotes and line breaks.
 
 # Troubleshooting
-- React app, Spotify shows `INVALID_CLIENT: Invalid redirect URI`: the redirect URI isn't registered exactly as sent. Open the app via `http://127.0.0.1:5173` (not `localhost`), and check that `http://127.0.0.1:5173/callback` is in your Spotify app's redirect URIs.
-- React app, "This login wasn't started in this tab, or was already used": the login is tied to the browser tab that started it (`sessionStorage`). Start it again from the home page, in the same tab.
-- During auth/login to spotify: `redirect_uri: Insecure` error: Spotify requires HTTPS for all redirect URIs. Make sure you've completed the mkcert setup above, opened the app via `https://dev.spotifyexport.com:8000` (not `localhost`), and added `https://dev.spotifyexport.com:8000/spotify-app-callback` to your Spotify app's redirect URIs.
+- Spotify shows `INVALID_CLIENT: Invalid redirect URI`: the redirect URI isn't registered exactly as sent. Open the app via `http://127.0.0.1:5173` (not `localhost`), and check that `http://127.0.0.1:5173/callback` is in your Spotify app's redirect URIs.
+- "This login wasn't started in this tab, or was already used": the login is tied to the browser tab that started it (`sessionStorage`). Start it again from the home page, in the same tab.
+- Spotify refuses the login, or the export fails with *Spotify doesn't let this app read that…* right at the start: your Spotify account probably isn't on the app's list of users. Ask the app's owner to add it under *User Management* in the Spotify dashboard, or use your own Spotify app.
