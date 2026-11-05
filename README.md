@@ -84,7 +84,7 @@ Moving from an always-on AWS container (~€12-20/mo) to a serverless, client-dr
    - [x] 8a. Check the API, then move the data model: read Spotify's [February 2026 migration guide](https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide). `/playlists/{id}/tracks` became `/playlists/{id}/items` (the old route gives a 403 for Development Mode apps), field names changed, and Development Mode only returns the items of playlists you own or collaborate on. Then move the zod schemas from `src/types/spotify.ts` to `web/src/spotify/`, updated to the new shapes and made robust for real-world data: local files (`id: null`), podcast episodes in playlists, empty descriptions, unavailable tracks.
      - Findings for 8b/8e: `/playlists/{id}/items` gives a 403 for playlists you neither own nor collaborate on, so skip those (compare `owner.id` with the user's id from `/me`; `collaborative: true` doesn't tell whether *you* are a collaborator, so for those treat a 403 as "skip") and say in the progress log how many were skipped. Ask for episodes too with `additional_types=track,episode`, and use `item` (not `track`) in the `fields` parameter. Max `limit` is 50 for both endpoints. The schemas stay in `src/types/` as well until the Express app goes in 8f.
    - [x] 8b. Spotify API client with `fetch`: one `spotifyGet` helper (Bearer token, zod-validated, readable errors for 401 expired / 403 / 429), pagination as a loop instead of recursion, wait for `Retry-After` on a 429 instead of the fixed 100 ms delay. `getPlaylists` + `getPlaylistItems`, `fetchFn` injectable like in `spotifyCallback.ts`, tested with a fake fetch.
-   - [ ] 8c. Export file: move `generateReturnFile` + its tests into `web/`, and fix it along the way:
+   - [x] 8c. Export file: move `generateReturnFile` + its tests into `web/`, and fix it along the way:
      - decode HTML entities in names and descriptions, for json and csv (known issue: `&#x2F;` → `/`);
      - real CSV escaping: `handleCommas` doesn't double quotes now (`replaceAll('"', '"')` does nothing), and newlines aren't escaped;
      - a UTF-8 BOM so Excel shows non-ASCII characters correctly;
@@ -111,6 +111,18 @@ prereq: set up AWS account incl. cost alerts and billshock prevention
 ### Cross-cutting
 16. Add versioning based on commit messages.
 17. Remove unnecessary comments: many were added to explain concepts while learning (React, PKCE, zod). Keep only the ones that explain a non-obvious why.
+18. Thorough review of the whole codebase, as the last step.
+    1. Code review: correctness, error handling, dead code, test gaps (`/code-review`), and whether the structure still makes sense now that everything is in place.
+    2. Security review (`/security-review`), at least:
+       - Access token: only in memory, never in `localStorage`, URLs or logs; the login code and state are removed from the URL and `sessionStorage` after use.
+       - PKCE + state check (CSRF) still as in 7a–7d; the redirect URIs registered with Spotify are only the ones in use.
+       - No secrets in the bundle: check `web/dist/` and everything that starts with `VITE_`.
+       - XSS: Spotify data (playlist names, descriptions) is only rendered as text by React, never through `dangerouslySetInnerHTML`.
+       - CSV formula injection: a playlist or track name that starts with `=`, `+`, `-` or `@` can run as a formula in Excel. Decide whether to prefix those with `'`.
+       - A Content Security Policy for GitHub Pages (a `<meta>` tag, since Pages can't set headers), allowing only `api.spotify.com` and `accounts.spotify.com` to be called.
+       - Dependencies: `npm audit`, remove what's unused, check the GitHub Actions permissions and pinned versions.
+       - Lambda / API Gateway (Phase B): input validation, CORS limited to the site's origin, rate limiting, least-privilege IAM, no PII in logs.
+    3. Check `/privacy` against what the code actually does, once more.
 
 ## Future features (after architecture migration)
 - Allow selection of 'own playlists only' vs. 'subscribed playlists too'
