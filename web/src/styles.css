@@ -160,6 +160,11 @@ h2 {
     text-align: center;
 }
 
+/* Centred with text-align, not `.centre`: a flex container drops the spaces around inline links. */
+.terms-consent {
+    text-align: center;
+}
+
 .hero-tagline {
     font-size: 1.6em;
     font-weight: bold;

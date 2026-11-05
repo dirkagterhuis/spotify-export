@@ -21,6 +21,9 @@ export function Footer() {
                     {/* Keeps the privacy notice reachable after the banner has been dismissed. */}
                     <Link to="/privacy">privacy</Link>
                 </li>
+                <li>
+                    <Link to="/terms">terms</Link>
+                </li>
             </ul>
         </footer>
     )

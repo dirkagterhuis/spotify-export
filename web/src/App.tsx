@@ -7,6 +7,7 @@ import { CallbackPage } from './pages/CallbackPage'
 import { HomePage } from './pages/HomePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { PrivacyPage } from './pages/PrivacyPage'
+import { TermsPage } from './pages/TermsPage'
 
 export function App() {
     // Lives here, above the routes, because two pages need it: /callback sets it, / uses it.
@@ -20,6 +21,7 @@ export function App() {
                 <Route path="/callback" element={<CallbackPage onLogin={setSpotifyToken} />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>
         </Layout>

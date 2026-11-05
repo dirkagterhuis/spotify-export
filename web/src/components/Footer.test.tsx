@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router'
 import { Footer } from './Footer'
 
 describe('Footer', () => {
-    it('links to the author, the source, the run-locally instructions and the privacy notice', () => {
+    it('links to the author, the source, the run-locally instructions, the privacy notice and the terms', () => {
         render(
             <MemoryRouter>
                 <Footer />
@@ -15,6 +15,7 @@ describe('Footer', () => {
             'https://github.com/dirkagterhuis/spotify-export',
             'https://github.com/dirkagterhuis/spotify-export#how-to',
             '/privacy',
+            '/terms',
         ])
     })
 })

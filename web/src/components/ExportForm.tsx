@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react'
+import { Link } from 'react-router'
 import type { FileType } from '../fileType'
 import { FileTypePicker } from './FileTypePicker'
 
@@ -24,6 +25,11 @@ export function ExportForm({ fileType, onFileTypeChange, isExporting, onExport }
                     {isExporting ? 'Exporting…' : 'Get my playlists!'}
                 </button>
             </div>
+            {/* Spotify's Developer Terms (V.11) require users to agree to the terms before use. */}
+            <p className="terms-consent">
+                By logging in with Spotify, you agree to the <Link to="/terms">terms of use</Link>{' '}
+                and the <Link to="/privacy">privacy notice</Link>.
+            </p>
         </form>
     )
 }

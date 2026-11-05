@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { App } from './App'
@@ -27,6 +27,24 @@ describe('App', () => {
     it('renders the privacy page at /privacy', () => {
         renderAt('/privacy')
         expect(screen.getByRole('heading', { level: 2, name: 'Privacy' })).toBeInTheDocument()
+    })
+
+    it('renders the terms page at /terms', () => {
+        renderAt('/terms')
+        expect(screen.getByRole('heading', { level: 2, name: 'Terms of use' })).toBeInTheDocument()
+    })
+
+    it('links to the terms and the privacy notice next to the export button', () => {
+        renderAt('/')
+        const form = screen.getByRole('button', { name: 'Get my playlists!' }).closest('form')!
+        expect(within(form).getByRole('link', { name: 'terms of use' })).toHaveAttribute(
+            'href',
+            '/terms'
+        )
+        expect(within(form).getByRole('link', { name: 'privacy notice' })).toHaveAttribute(
+            'href',
+            '/privacy'
+        )
     })
 
     it('renders the callback page at /callback, which rejects a login this tab never started', async () => {

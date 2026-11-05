@@ -24,6 +24,17 @@ export function PrivacyPage() {
                     closing the tab forgets it. It expires after an hour anyway.
                 </p>
             </Section>
+            <Section title="Disconnecting from Spotify">
+                <p>
+                    After your first login, Spotify lists this site under the apps that can access
+                    your account. To remove that access, open{' '}
+                    <a href="https://www.spotify.com/account/apps/">
+                        Manage apps in your Spotify account
+                    </a>{' '}
+                    and click <strong>Remove access</strong> next to this site's app. There is no
+                    data of yours on our side to delete afterwards.
+                </p>
+            </Section>
             <Section title="Spotify's list of users">
                 <p>
                     Spotify only lets this site's Spotify app be used by a few people, whom the site
@@ -45,6 +56,11 @@ export function PrivacyPage() {
                         tampering. They are deleted as soon as you are back from Spotify.
                     </li>
                 </ul>
+                <p>
+                    No cookies are set, not by this site and not by anyone else through it, so there
+                    are no cookie settings to manage. Clearing your browser's site data, or closing
+                    the tab, removes the values above.
+                </p>
             </Section>
             <Section title="Hosting">
                 <p>
@@ -62,9 +78,9 @@ export function PrivacyPage() {
             </Section>
             <Section title="Who runs this site">
                 <p>
-                    spotifyexport.com is a hobby project run by Dirk Agterhuis. The code is open
-                    source, so you can check all of this yourself. Other questions or ideas are
-                    welcome as an issue on{' '}
+                    spotifyexport.com is a hobby project run by Dirk Agterhuis. It is not affiliated
+                    with, endorsed by or supported by Spotify. The code is open source, so you can
+                    check all of this yourself. Other questions or ideas are welcome as an issue on{' '}
                     <a href="https://github.com/dirkagterhuis/spotify-export/issues">GitHub</a>.
                 </p>
             </Section>
