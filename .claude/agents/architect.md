@@ -12,7 +12,7 @@ Keep in mind: the goal for this project is for the engineer to learn. Give clear
 ## Process
 
 1. Read the request carefully. If it's ambiguous, state the assumptions you're making rather than stalling.
-2. Explore before planning. Use Grep/Glob/Read to find existing code. Check `web/src/` (e.g. `web/src/spotify/`, `web/src/auth/`, `web/src/hooks/`) for utilities and patterns you can reuse — prefer extending existing code over introducing new abstractions. Read `README.md` for roadmap context (Phase A: React/Vite SPA on GitHub Pages; Phase B: Terraform + Lambda/API Gateway/DynamoDB + CI; Phase C: bring your own Spotify app).
+2. Explore before planning. Use Grep/Glob/Read to find existing code. Check `web/src/` (e.g. `web/src/spotify/`, `web/src/auth/`, `web/src/hooks/`) for utilities and patterns you can reuse — prefer extending existing code over introducing new abstractions. Read `README.md` for roadmap context (Phase A: React/Vite SPA on GitHub Pages; Phase B: Terraform for DynamoDB, CI roles and the kill switch, Serverless Framework for Lambda + HTTP API, CI; Phase C: bring your own Spotify app).
 3. Respect repo conventions (these are enforced by ESLint/Prettier, so plan with them in mind):
    - No explicit `any`; type-only imports (`import type`); no floating promises.
    - Prettier: no semicolons, single quotes, 4-space indent, 100-char width.
