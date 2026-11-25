@@ -111,13 +111,13 @@ PENDING: change domain name provider from squarespace to e.g. cloudflare. check 
 
 Domain move status: DNS for both domains is on Cloudflare, and the registrar transfer is pending. Full guide: [docs/domain-transfer-cloudflare.md](docs/domain-transfer-cloudflare.md). Left to do per domain once Cloudflare emails "transfer complete":
 
-- [ ] Cloudflare → the domain → DNS → DNSSEC → Enable (Cloudflare sets the DS record itself now that it's the registrar).
-- [ ] Cloudflare → Domain Registration → Manage: check that auto-renew is on (next renewal 2028-01-10).
-- [ ] Squarespace: check that the domain is gone and no renewal is charged on 2027-01-10. Remove a saved payment method or subscription only if nothing else uses it.
-- [ ] GitHub → repo → Settings → Pages: the custom domain still shows as valid and "Enforce HTTPS" is ticked.
-- [ ] Optional but recommended: GitHub → account Settings → Pages → add both domains as verified domains (add GitHub's TXT record in Cloudflare, DNS only), so nobody else can claim them on GitHub Pages.
-- [ ] spotifyexport.com: one real login + export (the Spotify redirect URIs don't change).
-- [ ] Optional: Cloudflare → the domain → Email → Email Routing, to forward a contact address on the domain to a private inbox. Cloudflare adds the MX/TXT records itself.
+- [x] Cloudflare → the domain → DNS → DNSSEC → Enable (Cloudflare sets the DS record itself now that it's the registrar).
+- [x] Cloudflare → Domain Registration → Manage: check that auto-renew is on (next renewal 2028-01-10).
+- [x] Squarespace: check that the domain is gone and no renewal is charged on 2027-01-10. Remove a saved payment method or subscription only if nothing else uses it.
+- [x] GitHub → repo → Settings → Pages: the custom domain still shows as valid and "Enforce HTTPS" is ticked.
+- [x] Optional but recommended: GitHub → account Settings → Pages → add both domains as verified domains (add GitHub's TXT record in Cloudflare, DNS only), so nobody else can claim them on GitHub Pages.
+- [x] spotifyexport.com: one real login + export (the Spotify redirect URIs don't change).
+- [x] Optional: Cloudflare → the domain → Email → Email Routing, to forward a contact address on the domain to a private inbox. Cloudflare adds the MX/TXT records itself. Done for spotifyexport.com: `info@spotifyexport.com`.
 
 ### Phase B — Optional analytics backend (the AWS / Terraform / Serverless / Lambda / DynamoDB learning)
 Goal: count exports per day and per format, and show a total on the site ("1,234 playlists exported so far"). The point is learning AWS, Terraform, the Serverless Framework, Lambda and DynamoDB; the site works the same without it, and an outage of the API must never break an export.
