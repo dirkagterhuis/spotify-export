@@ -1,0 +1,60 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyAllRegionsExceptFrankfurt",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:*",
+        "sts:*",
+        "budgets:*",
+        "s3:ListAllMyBuckets",
+        "s3:GetBucketLocation",
+        "s3:GetAccountPublic*",
+        "s3:PutAccountPublic*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:RequestedRegion": ["eu-central-1"]
+        }
+      }
+    },
+    {
+      "Sid": "DenyEveryServiceNotOnTheAllowList",
+      "Effect": "Deny",
+      "NotAction": [
+        "lambda:*",
+        "dynamodb:*",
+        "apigateway:*",
+        "s3:*",
+        "cloudformation:*",
+        "ssm:*",
+        "cloudwatch:*",
+        "logs:*",
+        "sns:*",
+        "iam:*",
+        "sts:*",
+        "acm:*",
+        "budgets:*",
+        "cloudtrail:LookupEvents",
+        "cloudtrail:Describe*",
+        "cloudtrail:Get*",
+        "cloudtrail:List*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyLongLivedCredentials",
+      "Effect": "Deny",
+      "Action": ["iam:CreateUser", "iam:CreateAccessKey", "iam:CreateLoginProfile"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyLeavingTheOrganization",
+      "Effect": "Deny",
+      "Action": "organizations:LeaveOrganization",
+      "Resource": "*"
+    }
+  ]
+}
